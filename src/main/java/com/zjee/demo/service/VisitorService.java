@@ -5,6 +5,7 @@ import com.zjee.demo.service.util.IpInfoGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -34,6 +35,7 @@ public class VisitorService {
         return dateList;
     }
 
+    @Cacheable(cacheNames = "visitors-info",  key = "#date", unless = "#result == null || #result.empty")
     public Map<String, List<String>> getVisitorList(String date) {
         if (date == null)
             return Collections.emptyMap();

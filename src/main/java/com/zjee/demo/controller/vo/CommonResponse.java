@@ -1,8 +1,6 @@
 package com.zjee.demo.controller.vo;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -10,7 +8,7 @@ import java.util.Map;
 public class CommonResponse {
     private int code;
     private String msg;
-    private Map<String, ?> data;
+    private Object data;
 
     public CommonResponse(){}
 

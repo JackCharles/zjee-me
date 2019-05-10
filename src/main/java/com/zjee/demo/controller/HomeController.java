@@ -40,7 +40,7 @@ public class HomeController {
         return "home";
     }
 
-    @GetMapping("/server")
+    @GetMapping(value = "/server")
     @ResponseBody
     public CommonResponse serverInfo() {
         CommonResponse response = new CommonResponse(ResponseStatus.SUCCESS_CODE, ResponseStatus.SUCCESS_MSG);
@@ -48,7 +48,7 @@ public class HomeController {
         return response;
     }
 
-    @GetMapping("/jvm")
+    @GetMapping(value = "/jvm")
     @ResponseBody
     public CommonResponse JvmInfo() {
         CommonResponse response = new CommonResponse(ResponseStatus.SUCCESS_CODE, ResponseStatus.SUCCESS_MSG);
@@ -64,12 +64,10 @@ public class HomeController {
         if (file == null || !file.exists()) {
             response.setCode(ResponseStatus.ERROR_CODE);
             response.setMsg("file not exists.");
-        }
-        else if (file.isFile()) {
+        } else if (file.isFile()) {
             httpRequest.setAttribute("file", file);
             return "forward:/startDownload";
-        }
-        else if (file.isDirectory()) {
+        } else if (file.isDirectory()) {
             data.put("fileList", downloadService.getFileList(file));
         }
         response.setData(data);
@@ -77,7 +75,7 @@ public class HomeController {
         return "download";
     }
 
-    @GetMapping("/startDownload")
+    @GetMapping(value = "/startDownload")
     @ResponseBody
     public Object downloadFile(HttpServletRequest httpRequest) {
         File file = (File) httpRequest.getAttribute("file");
@@ -104,17 +102,14 @@ public class HomeController {
         if (operation == null) {
             data.put("dateList", visitorService.getSortedDateList());
             data.put("isDetail", false);
-        }
-        else if (operation.equals("clearCache")) {
+        } else if (operation.equals("clearCache")) {
             visitorService.clearIpInfoCache();
             return "redirect:/visitor";
-        }
-        else if (operation.matches("\\d{4}-\\d{2}-\\d{2}")) {//日期
+        } else if (operation.matches("\\d{4}-\\d{2}-\\d{2}")) {//日期
             data.put("visitorList", visitorService.getVisitorList(operation));
             data.put("isDetail", true);
             data.put("date", operation);
-        }
-        else {
+        } else {
             response.setCode(ResponseStatus.ERROR_CODE);
             response.setMsg("Illegal operation.");
         }

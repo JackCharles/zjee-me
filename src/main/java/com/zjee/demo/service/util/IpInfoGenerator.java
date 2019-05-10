@@ -1,11 +1,11 @@
 package com.zjee.demo.service.util;
 
-import com.alibaba.fastjson.JSON;
 import com.zjee.demo.constant.Constant;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -35,7 +35,7 @@ public class IpInfoGenerator {
                 byte[] bytes = new byte[1024];
                 InputStream inputStream = httpResponse.getEntity().getContent();
                 int len = inputStream.read(bytes);
-                Map<String, Object> map = JSON.parseObject(new String(bytes, 0, len, StandardCharsets.UTF_8));
+                Map<String, Object> map = new JSONObject(new String(bytes, 0, len, StandardCharsets.UTF_8)).toMap();
                 logger.info("IP:{}的位置信息获取成功", ip);
                 return new StringBuilder(map.get("country").toString())
                         .append(" - ")
