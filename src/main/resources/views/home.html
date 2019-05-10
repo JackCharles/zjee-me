@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body>
+    <h3>欢迎来到zjee.ml，这里看起来一切正常</h3>
+    <h3>这是第<span th:text="${model.data.visitCount}">-1</span>次测试！</h3>
+    <p>
+        <a href="/server"><button>服务器信息</button></a>
+    </p>
+    <p>
+        <a href="/jvm"><button>JVM信息</button></a>
+    </p>
+    <p>
+        <a href="/download"><button>下载资源</button></a>
+    </p>
+    <p>
+        <a href="/visitor"><button>查看访问记录</button></a>
+    </p>
+
+
+<p th:text="#{welcome}">i18n测试</p>
+
+</body>
+</html>
