@@ -105,3 +105,4 @@ hs_err_pid*
 logs/.DS_Store
 logs/zjee/.DS_Store
 logs/zjee/visitor/.DS_Store
+logs
