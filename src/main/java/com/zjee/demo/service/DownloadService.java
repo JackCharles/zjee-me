@@ -13,7 +13,7 @@ public class DownloadService {
     public File getFileFromUri(String uri){
         if(uri == null)
             return null;
-        return new File(".." + uri);
+        return new File(uri.substring(1));
     }
 
     public Map<String, String> getFileList(File file){
