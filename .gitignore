@@ -67,10 +67,6 @@ atlassian-ide-plugin.xml
 
 # Cursive Clojure plugin
 .idea/replstate.xml
-<<<<<<< HEAD
-=======
-
->>>>>>> eb1ceb6... dev
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
 crashlytics.properties
@@ -108,17 +104,5 @@ hs_err_pid*
 logs/.DS_Store
 logs/zjee/.DS_Store
 logs/zjee/visitor/.DS_Store
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-logs
+logs/
 nohup.out
-=======
->>>>>>> eb1ceb6... dev
-=======
-logs
->>>>>>> dd122c3... dev
-=======
-logs
-nohup.out
->>>>>>> 72a7a44... dev
