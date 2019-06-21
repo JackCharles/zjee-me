@@ -1,6 +1,7 @@
 package com.zjee.demo.service;
 
 import com.zjee.demo.constant.ResponseStatus;
+import com.zjee.demo.service.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -123,13 +124,7 @@ public class WeatherService {
 
         HttpResponse response = httpClient.execute(httpGet);
         if (response.getStatusLine().getStatusCode() == ResponseStatus.SUCCESS_CODE) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            String line;
-            StringBuilder xmlStr = new StringBuilder();
-            while ((line = reader.readLine()) != null)
-                xmlStr.append(line);
-
-            JSONObject jsonObject = XML.toJSONObject(xmlStr.toString());
+            JSONObject jsonObject = XML.toJSONObject(CommonUtil.readStreamToString(response.getEntity().getContent()));
             return jsonObject.toMap();
         }
         return null;
