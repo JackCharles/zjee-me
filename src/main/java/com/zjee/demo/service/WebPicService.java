@@ -15,7 +15,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +35,8 @@ public class WebPicService {
         HttpClient client = HttpClients.createDefault();
         URIBuilder uriBuilder = new URIBuilder(Constant.IMG_URL)
                 .addParameter("key", Constant.PIX_KEY)
-                .addParameter("q", URLEncoder.encode(keyWord, "utf-8"))
+                .addParameter("q", keyWord)
+                .addParameter("lang", CommonUtil.getLanguage(keyWord))
                 .addParameter("image_type", "photo")
                 .addParameter("orientation", "horizontal")
                 .addParameter("min_width", "3839")

@@ -26,6 +26,6 @@ public class NoSpringTest {
 
     @Test
     public void imageUrlTest() throws Exception{
-        webPicService.batchGetPhotoUrl("hope", LocalDate.now().toString()).forEach(System.out :: println);
+        webPicService.batchGetPhotoUrl("内华达", LocalDate.now().toString()).forEach(System.out :: println);
     }
 }

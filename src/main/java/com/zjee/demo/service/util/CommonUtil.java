@@ -1,6 +1,7 @@
 package com.zjee.demo.service.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -31,5 +32,17 @@ public class CommonUtil {
             log.error(e.getLocalizedMessage(), e);
         }
         return "";
+    }
+
+    public static String getLanguage(String str) {
+        if (StringUtils.isEmpty(str)) {
+            return "en";
+        }
+        for (int i = 0; i < str.length(); ++i) {
+            if (str.charAt(i) > 255) {
+                return "zh";
+            }
+        }
+        return "en";
     }
 }

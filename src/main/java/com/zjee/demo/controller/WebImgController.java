@@ -32,6 +32,7 @@ public class WebImgController {
     @RequestMapping("webImage")
     public CommonResponse getWebImgUrl(String keyWord){
         CommonResponse response = new CommonResponse();
+        response.setCode(ResponseStatus.ERROR_CODE);
         try {
             if(StringUtils.isEmpty(keyWord)){
                 keyWord = "自然风景";
@@ -41,10 +42,11 @@ public class WebImgController {
                 response.setCode(ResponseStatus.SUCCESS_CODE);
                 response.setMsg(ResponseStatus.SUCCESS_MSG);
                 response.setData(urlList);
+            }else {
+                response.setMsg(String.format("没有检索到与【%s】相关的内容", keyWord));
             }
         } catch (Exception e) {
             log.error(e.getLocalizedMessage(), e);
-            response.setCode(ResponseStatus.ERROR_CODE);
             response.setMsg(e.getLocalizedMessage());
         }finally {
             return response;
