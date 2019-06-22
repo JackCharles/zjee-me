@@ -3,6 +3,7 @@ package com.zjee.demo.service;
 import com.zjee.demo.constant.Constant;
 import com.zjee.demo.constant.ResponseStatus;
 import com.zjee.demo.service.util.CommonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -14,8 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,22 +27,25 @@ import java.util.List;
  */
 
 @Component
+@Slf4j
 public class WebPicService {
 
-    @Cacheable(cacheNames = "imgUrls",  key = "#key", unless = "#result == null")
-    public List<String> batchGetPhotoUrl(String key) throws Exception {
+    @Cacheable(cacheNames = "imgUrls",  key = "#keyWord+#date", unless = "#result == null")
+    public List<String> batchGetPhotoUrl(String keyWord, String date) throws Exception {
+        log.info("batchGetPhotoUrl未命中缓存：keyword = {}, date = {}", keyWord, date);
         HttpClient client = HttpClients.createDefault();
         URIBuilder uriBuilder = new URIBuilder(Constant.IMG_URL)
                 .addParameter("key", Constant.PIX_KEY)
+                .addParameter("q", URLEncoder.encode(keyWord, "utf-8"))
                 .addParameter("image_type", "photo")
                 .addParameter("orientation", "horizontal")
-                .addParameter("min_width", "1920")
-                .addParameter("min_height", "1080")
-                .addParameter("safesearch", "true")
+                .addParameter("min_width", "3839")
+                .addParameter("min_height", "2159")
                 .addParameter("per_page", "200");
         HttpGet get = new HttpGet(uriBuilder.build());
         HttpResponse response = client.execute(get);
         if(response == null || response.getStatusLine().getStatusCode() != ResponseStatus.SUCCESS_CODE){
+            log.error("pixabay API请求失败, url: {}", uriBuilder.build().toString());
             throw new Exception("pixabay API请求失败");
         }
         String res = CommonUtil.readStreamToString(response.getEntity().getContent());

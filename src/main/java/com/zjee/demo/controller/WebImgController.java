@@ -6,6 +6,7 @@ import com.zjee.demo.service.WebPicService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,10 +30,13 @@ public class WebImgController {
     private WebPicService webPicService;
 
     @RequestMapping("webImage")
-    public CommonResponse getWebImgUrl(){
+    public CommonResponse getWebImgUrl(String keyWord){
         CommonResponse response = new CommonResponse();
         try {
-            List<String> urlList = webPicService.batchGetPhotoUrl(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            if(StringUtils.isEmpty(keyWord)){
+                keyWord = "自然风景";
+            }
+            List<String> urlList = webPicService.batchGetPhotoUrl(keyWord, LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
             if (!CollectionUtils.isEmpty(urlList)){
                 response.setCode(ResponseStatus.SUCCESS_CODE);
                 response.setMsg(ResponseStatus.SUCCESS_MSG);

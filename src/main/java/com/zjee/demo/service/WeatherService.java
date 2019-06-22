@@ -35,6 +35,7 @@ public class WeatherService {
 
     @Cacheable(cacheNames = "woeid",  key = "#keyWord", unless = "#result == null")
     public Object getWoeidByKeyWord(String keyWord) {
+        log.info("getWoeidByKeyWord未命中缓存，keyword = {}", keyWord);
         if (keyWord == null)
             return null;
         try {
