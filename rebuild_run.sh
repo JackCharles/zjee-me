@@ -13,7 +13,7 @@ echo 'compile and packaging jar...'
 mvn package -Dmaven.test.skip=true
 
 echo 'start application...'
-nohup java -jar target/zjee-ml-1.0.jar -Dserver.port=443 &
+nohup java -jar -Dserver.port=443 target/zjee-ml-1.0.jar &
 
 sleep 1
 
