@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.zjee</groupId>
-    <artifactId>demo</artifactId>
+    <artifactId>zjee-ml</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>demo</name>
+    <name>zjee-ml</name>
     <description></description>
 
     <parent>
@@ -83,7 +83,18 @@
             <artifactId>json</artifactId>
             <version>20180813</version>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/org.apache.tika/tika-core -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>1.22</version>
+        </dependency>
+        <!-- Lean Cloud SDK -->
+        <dependency>
+            <groupId>cn.leancloud</groupId>
+            <artifactId>storage-core</artifactId>
+            <version>5.0.26</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -57,11 +57,11 @@
         </encoder>
     </appender>
 
-    <logger name="com.zjee.demo.filter.IpCountFilter" level="INFO" addtivity="false">
+    <logger name="com.zjee.filter.IpCountFilter" level="INFO" addtivity="false">
         <appender-ref ref="IpCount"/>
     </logger>
 
-    <root level="INFO">
+    <root level="info">
         <appender-ref ref="console"/>
         <!--<appender-ref ref="ERROR"/>-->
         <!--<appender-ref ref="INFO"/>-->

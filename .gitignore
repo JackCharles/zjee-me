@@ -106,3 +106,5 @@ logs/zjee/.DS_Store
 logs/zjee/visitor/.DS_Store
 logs/
 nohup.out
+sigar*
+data
