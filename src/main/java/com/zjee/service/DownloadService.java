@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
+import java.net.URLDecoder;
 import java.util.*;
 
 @Component
@@ -16,7 +17,13 @@ public class DownloadService {
     public File getFileFromUri(String uri, String prefix) {
         if (StringUtils.isEmpty(uri))
             return null;
-        return new File(uri.replaceAll(prefix, ""));
+        String fileName;
+        try {
+            fileName = URLDecoder.decode(uri.replaceAll(prefix, ""), "utf-8");
+        } catch (Exception e) {
+            return null;
+        }
+        return new File(fileName);
     }
 
     public List<Map<String, String>> getFileList(File file) {
