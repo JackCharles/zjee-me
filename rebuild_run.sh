@@ -4,9 +4,6 @@ echo 'kill running process...'
 
 jps | awk '{print $1}' | xargs kill
 
-echo 'pulling latest code from github...'
-git pull
-
 mvn clean
 
 echo 'compile and packaging jar...'
