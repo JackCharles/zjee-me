@@ -1,11 +1,6 @@
 package com.zjee.config;
 
 import com.zjee.filter.IpCountFilter;
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Connector;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -35,18 +30,5 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
 
-    }
-
-    /**
-     * 启用80端口支持Http请求
-     * @return
-     */
-    @Bean
-    public TomcatServletWebServerFactory tomcatServletWebServerFactory() {
-        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
-        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        connector.setPort(80);
-        factory.addAdditionalTomcatConnectors(connector);
-        return factory;
     }
 }
