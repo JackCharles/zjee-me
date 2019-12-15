@@ -6,9 +6,11 @@ import cn.leancloud.core.AVOSCloud;
 import com.alibaba.fastjson.JSON;
 import com.zjee.constant.Constant;
 import com.zjee.constant.UserRole;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -27,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
+@Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     static {
         AVOSCloud.initialize(Constant.LEAN_CLOUD_APP_ID, Constant.LEAN_CLOUD_APP_KEY);
@@ -68,19 +71,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         AVQuery<AVObject> query = new AVQuery<>(Constant.AUTH_CLASS_NAME);
         List<AVObject> userList = query.whereEqualTo("user_name", name).find();
         if (CollectionUtils.isEmpty(userList)) {
+            log.error("user not find: {}", name);
             throw new UsernameNotFoundException("can not find user: " + name);
         }
         AVObject userInfo = userList.get(0);
-        return User.builder()
+        UserDetails userDetails = User.builder()
                 .username(userInfo.getString("user_name"))
                 .password(userInfo.getString("password"))
                 .roles(userInfo.getString("role"))
                 .build();
+        log.info("user details: {}", userDetails);
+        return userDetails;
     }
 
     public void onAuthSuccess(HttpServletRequest request, HttpServletResponse response,
                                Authentication authentication) throws IOException, ServletException {
 
+        log.info("login success: {}", authentication);
         response.setContentType("application/json;charset=UTF-8");
         Map<String, Object> map = new HashMap<>();
         map.put("auth_status", 0);
@@ -90,6 +97,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     public void onAuthFailure(HttpServletRequest request, HttpServletResponse response,
                               AuthenticationException e) throws IOException, ServletException {
+        log.error("login failed: ", e);
         response.setContentType("application/json;charset=UTF-8");
         Map<String, Object> map = new HashMap<>();
         map.put("auth_status", 1);
