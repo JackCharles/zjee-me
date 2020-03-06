@@ -1,6 +1,6 @@
 package com.zjee.controller;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.alibaba.fastjson.JSON;
 import com.zjee.constant.Constant;
 import com.zjee.constant.ResponseStatus;
 import com.zjee.controller.vo.CommonResponse;
@@ -24,10 +24,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
+import java.net.URLConnection;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +37,8 @@ import java.util.stream.Collectors;
 @Controller
 @Slf4j
 public class HomeController {
+
+    private static Map<String, ClassLoader> classLoaderMap = new HashMap<>();
 
     private int visitCount = 0;
     @Autowired
@@ -125,18 +129,31 @@ public class HomeController {
         return "dynimicInvoke";
     }
 
-
     @RequestMapping("/dynamicInvoke")
     @ResponseBody
-    public Object dynamicInvoke(String clazzName, String method, String paramTypes, String args) throws Exception {
-        Path jarPath = Paths.get("ext-lib/extLib.jar");
-        URL url = jarPath.toUri().toURL();
-        URLClassLoader myClassLoader = URLClassLoader.newInstance(new URL[]{url}, Thread.currentThread().getContextClassLoader());
-        Class<?> myClazz;
+    public Object dynamicInvoke(String groupId, String artifactId, String version,
+                                String clazzName, String method, String paramTypes,
+                                String args, boolean staticCall) {
+        Class<?> myClazz = null;
         try {
-            myClazz = myClassLoader.loadClass(clazzName);
-        }catch (Exception e) {
-            return e.toString();
+            myClazz = Class.forName(clazzName, true, classLoaderMap.get(clazzName));
+        } catch (ClassNotFoundException e) {
+            log.warn("need load class {}", clazzName);
+        }
+
+        if (myClazz == null) {
+            String path = dynamicAddJar(groupId, artifactId, version);
+            if (path == null) {
+                return "can not found jar lib, may be download filed, please try it again later!";
+            }
+            try {
+                URLClassLoader myClassLoader = URLClassLoader.newInstance(new URL[]{Paths.get(path).toUri().toURL()},
+                        Thread.currentThread().getContextClassLoader());
+                myClazz = myClassLoader.loadClass(clazzName);
+                classLoaderMap.put(clazzName, myClazz.getClassLoader());
+            } catch (Exception e) {
+                return e.toString();
+            }
         }
         Object ret;
         Method mth;
@@ -144,20 +161,65 @@ public class HomeController {
                 Arrays.stream(paramTypes.split(",")).map(String::trim).collect(Collectors.toList());
 
         List<String> params = args == null ? Collections.EMPTY_LIST :
-                Arrays.stream(args.split(",")).map(String::trim).collect(Collectors.toList());
+                Arrays.stream(args.split("&")).map(String::trim).collect(Collectors.toList());
 
-        if(types.size() > 0) {
-            mth = myClazz.getMethod(method, resolveClass(types));
-            mth.setAccessible(true);
-            ret = mth.invoke(myClazz.newInstance(), resolveParms(types, params));
-        }else {
-            mth = myClazz.getMethod(method);
-            mth.setAccessible(true);
-            ret = mth.invoke(myClazz.newInstance());
+        try {
+            if (types.size() > 0) {
+                mth = myClazz.getMethod(method, resolveClass(types));
+                mth.setAccessible(true);
+                ret = mth.invoke(staticCall ? myClazz : myClazz.newInstance(), resolveParms(types, params));
+            }
+            else {
+                mth = myClazz.getMethod(method);
+                mth.setAccessible(true);
+                ret = mth.invoke(staticCall ? myClazz : myClazz.newInstance());
+            }
+        }catch (Exception e) {
+            log.error("invoke error: ", e);
+            return e.toString();
         }
         return ret;
     }
 
+
+    private String dynamicAddJar(String groupId, String artifactId, String version) {
+        if (StringUtils.isEmpty(groupId) || StringUtils.isEmpty(artifactId) || StringUtils.isEmpty(version)) {
+            return null;
+        }
+
+        String fileName = artifactId + "-" + version + ".jar";
+        String downloadUrl = "https://repo1.maven.org/maven2/" +
+                groupId.replace('.', '/') + "/" +
+                artifactId + "/" + version + "/" + fileName;
+        String basePath = "ext-lib/" + groupId + "/" + artifactId + "/";
+
+        if (new File(basePath + fileName).exists()) {
+            return basePath + fileName;
+        }
+
+        // 下载网络文件
+        int bytesum = 0;
+        int byteread = 0;
+        try {
+            URL url = new URL(downloadUrl);
+            URLConnection conn = url.openConnection();
+            InputStream inStream = conn.getInputStream();
+            if (new File(basePath).mkdirs()) {
+                FileOutputStream fs = new FileOutputStream(basePath + fileName);
+
+                byte[] buffer = new byte[1204];
+                while ((byteread = inStream.read(buffer)) != -1) {
+                    bytesum += byteread;
+                    log.info("{} download: {}", fileName, bytesum);
+                    fs.write(buffer, 0, byteread);
+                }
+            }
+        } catch (Exception e) {
+            log.error("download jar failed: ", e);
+            return null;
+        }
+        return basePath + fileName;
+    }
 
     private Class<?>[] resolveClass(List<String> clazz) {
         if (clazz == null || clazz.size() == 0) {
@@ -181,19 +243,29 @@ public class HomeController {
                 case "boolean":
                     classes.add(boolean.class);
                     break;
-                case "String":
-                    classes.add(String.class);
+                case "short":
+                    classes.add(short.class);
+                    break;
+                case "byte":
+                    classes.add(byte.class);
+                    break;
+                case "char":
+                    classes.add(char.class);
                     break;
                 default:
-                    try {
-                        Class<?> aClass = Class.forName(s);
-                        classes.add(aClass);
-                    } catch (ClassNotFoundException e) {
-                        log.error("class not found: ", e);
-                    }
+                    classes.add(getClassFromName(s));
             }
         }
         return classes.toArray(new Class[0]);
+    }
+
+    private Class getClassFromName(String name) {
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException e) {
+            log.error("class not found: ", e);
+        }
+        return Object.class;
     }
 
     private Object[] resolveParms(List<String> clazz, List<String> args) {
@@ -219,12 +291,19 @@ public class HomeController {
                     case "boolean":
                         parms.add(Boolean.parseBoolean(args.get(i)));
                         break;
-                    case "String":
-                        parms.add(String.valueOf(args.get(i)));
+                    case "short":
+                        parms.add(Short.parseShort(args.get(i)));
+                        break;
+                    case "char":
+                        parms.add(args.get(i).charAt(0));
+                        break;
+                    case "byte":
+                        parms.add(Byte.parseByte(args.get(i)));
                         break;
                     default:
+                        parms.add(JSON.parseObject(args.get(i), getClassFromName(clazz.get(i))));
                 }
-            }catch (Exception e) {
+            } catch (Exception e) {
                 log.error("parse value error: ", e);
             }
         }

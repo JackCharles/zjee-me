@@ -1,17 +1,52 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Dynamic call</title>
+
+    <script>
+        function invoke() {
+          document.getElementById("invoke-result").innerHTML="please wait...";
+          var xhr = new XMLHttpRequest()
+          var callback = function() {
+            document.getElementById("invoke-result").innerHTML=xhr.responseText;
+          }
+
+          var formData = new FormData()
+          formData.append('groupId', document.getElementById('groupIdInput').value)
+          formData.append('artifactId', document.getElementById('artifactIdInput').value)
+          formData.append('version', document.getElementById('versionInput').value)
+          formData.append('clazzName', document.getElementById('clazzNameInput').value)
+          formData.append('method', document.getElementById('methodInput').value)
+          formData.append('paramTypes', document.getElementById('paramTypesInput').value)
+          formData.append('args', document.getElementById('argsInput').value)
+          formData.append('staticCall', document.getElementById('staticCallInput').checked)
+
+          xhr.onreadystatechange = callback
+          xhr.onerror = callback
+          xhr.ontimeout = callback
+
+          xhr.open("POST", "/dynamicInvoke", true)
+          xhr.send(formData)
+        }
+    </script>
 </head>
 <body>
+<div>
+    <h4>Jar Info</h4>
+    Group Id: <input id="groupIdInput" name="groupId" value="org.apache.commons"/><br/>
+    Artifact Id: <input id="artifactIdInput" name="artifactId" value="commons-collections4"/><br/>
+    version: <input id="versionInput" name="version" value="4.4"/><br/>
+
     <h4>dynamic invoke</h4>
-    <form method="post" action="/dynamicInvoke">
-        Class Name: <input name="clazzName" value="com.zjee.CommonUtil"/><br/>
-        Method Name: <input name="method" value="add"/><br/>
-        Parameter Types: <input name="paramTypes" value="int, int"/><br/>
-        Arguments: <input name="args" value="123, -456"/><br/>
-        <input type="submit" value="submit"/>
-    </form>
+    Class Name: <input id="clazzNameInput" name="clazzName" value="org.apache.commons.collections4.CollectionUtils"/><br/>
+    Method Name: <input id="methodInput" name="method" value="isEmpty"/><br/>
+    Parameter Types: <input id="paramTypesInput" name="paramTypes" value="java.util.Collection"/> delimit with ','<br/>
+    Arguments: <input id="argsInput" name="args" value="[1,2,3]"/> delimit with '&' <br/>
+    Static Call: <input id = "staticCallInput" name="staticCall" type="checkbox"/><br/>
+    <br/>
+    <button onclick="invoke()">Invoke Method</button>
+    <div id="invoke-result"></div>
+</div>
 </body>
 </html>
