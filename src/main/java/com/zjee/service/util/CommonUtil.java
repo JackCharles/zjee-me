@@ -70,8 +70,13 @@ public class CommonUtil {
         return formatByteUnit(kb * 1024L);
     }
 
-    public static String formatByteToMB(long byteLen) {
-        return String.format("%.2f", (byteLen * 1.0) / MB);
+    public static double toDouble(Object object) {
+        try {
+            return Double.parseDouble(String.valueOf(object));
+        } catch (Exception e) {
+            log.error("parse double error: ", e);
+        }
+        return 0d;
     }
 
     public static String doubleToPercent(double d) {

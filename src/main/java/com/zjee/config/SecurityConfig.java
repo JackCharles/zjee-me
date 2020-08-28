@@ -5,7 +5,6 @@ import cn.leancloud.AVQuery;
 import cn.leancloud.core.AVOSCloud;
 import com.alibaba.fastjson.JSON;
 import com.zjee.constant.Constant;
-import com.zjee.constant.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -54,8 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(this::onAuthFailure)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/sysInfo", "/api/visitLog/**").hasRole(UserRole.ADMIN.name())
-                .antMatchers("/api/download/**").hasRole(UserRole.ADMIN.name())
+               // .antMatchers("/api/sysInfo", "/api/visitLog/**").hasRole(UserRole.ADMIN.name())
+//                .antMatchers("/api/download/**").hasRole(UserRole.ADMIN.name())
                 .anyRequest().permitAll();
         http.csrf().disable();
     }
@@ -68,7 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * @throws UsernameNotFoundException
      */
     public UserDetails getUserByName(String name) throws UsernameNotFoundException {
-        AVQuery<AVObject> query = new AVQuery<>(Constant.AUTH_CLASS_NAME);
+        AVQuery<AVObject> query = new AVQuery<>(Constant.USER_INFO_CLASS);
         List<AVObject> userList = query.whereEqualTo("user_name", name).find();
         if (CollectionUtils.isEmpty(userList)) {
             log.error("user not find: {}", name);

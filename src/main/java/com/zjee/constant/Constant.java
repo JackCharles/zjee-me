@@ -16,12 +16,13 @@ public class Constant {
 
     public static String HITOKOTO_URL = "https://v1.hitokoto.cn";
 
-    public static String VULTR_KEY = "ECPZBD2X6TLYOFQDQG6MUKUU4EUVGOW4VL5Q";
-    public static String SERVER_LIST = "https://api.vultr.com/v1/server/list";
-    public static String BAND_WIDTH = "https://api.vultr.com/v1/server/bandwidth";
-    public static String SUB_ID = "31211880";
+    public static String VPS_INFO_URL = "https://manage.hostdare.com/clientarea.php?action=productdetails&id=32166&api=json&act=vpsmanage&stats=1&svs=";
+    public static String LOGIN_URL = "https://manage.hostdare.com/dologin.php";
+    public static String COOKIE_NAME = "WHMCSQnFy6YcDKurd";
 
     public static String LEAN_CLOUD_APP_ID = "hiuyEvHNGJv0HBzIgke1FOa2-MdYXbMMI";
     public static String LEAN_CLOUD_APP_KEY = "W2WW9ah2D4zfyhW3aYtKw3xD";
-    public static String AUTH_CLASS_NAME = "zjeeAccount";
+
+    public static String USER_INFO_CLASS = "zjeeAccount";
+    public static String HOSTDARE_INFO_CLASS = "HostDareAccount";
 }
