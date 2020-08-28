@@ -43,10 +43,10 @@ public class SystemInfoService {
 
     public Map<String, Map> getSystemInfo() {
         Map<String, Map> map = new HashMap<>();
-//        map.put("cpu", systemInfoTracker.getCpuInfo());
-//        map.put("mem", systemInfoTracker.getPhysicalMemoryInfo());
-//        map.put("swap", systemInfoTracker.getSwapInfo());
-//        map.put("disk", systemInfoTracker.getFileSystemInfo());
+        map.put("cpu", systemInfoTracker.getCpuInfo());
+        map.put("mem", systemInfoTracker.getPhysicalMemoryInfo());
+        map.put("swap", systemInfoTracker.getSwapInfo());
+        map.put("disk", systemInfoTracker.getFileSystemInfo());
         map.put("bandwidth", getBandwidthInfo());
         return map;
     }
