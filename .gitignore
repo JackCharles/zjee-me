@@ -108,5 +108,6 @@ logs/
 nohup.out
 sigar*
 data
-zjee.ml/dist
-zjee.ml/node_modules
+zjee.me/dist
+zjee.me/node_modules
+/PaasKeyValueCache/
