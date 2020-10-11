@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.zjee</groupId>
-    <artifactId>zjee-ml</artifactId>
+    <artifactId>zjee-me</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>zjee-ml</name>
+    <name>zjee-me</name>
     <description></description>
 
     <parent>

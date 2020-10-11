@@ -1,6 +1,5 @@
 package com.zjee.filter;
 
-import ch.qos.logback.core.rolling.RollingFileAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,8 @@ public class IpCountFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
         String ip = servletRequest.getRemoteAddr();
         int port = servletRequest.getRemotePort();
         String uri = ((HttpServletRequest)servletRequest).getRequestURI();
