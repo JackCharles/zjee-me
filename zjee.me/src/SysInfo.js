@@ -1,11 +1,10 @@
 import React, {Fragment} from 'react'
-import { Progress, Table, message, Spin } from 'antd'
-import axios from 'axios'
-import ReactEcharts from 'echarts-for-react'
+import {message, Progress, Spin, Table} from 'antd'
 import NavBar from './NavBar'
 import Footer from './Footer'
 import Login from './Login'
 import './SysInfo.css'
+import axios from "axios";
 
 const ramColumns = [
   {
@@ -162,12 +161,12 @@ class SysInfo extends React.Component {
       this.onLoginSuccess = this.onLoginSuccess.bind(this)
       this.getSysInfoData = this.getSysInfoData.bind(this)
     }
-    
+
     render() {
         return (
             <Fragment>
                 <NavBar current="sys-info"/>
-              { !this.state.ready ? 
+              { !this.state.ready ?
                 <Spin size="large" tip="loading..." className="sysinfo-loading"/> :
                 <div id = "sysinfo-content">
                 {/*绘制仪表盘及表格*/}
@@ -205,24 +204,25 @@ class SysInfo extends React.Component {
                   </div>
                 </div>
 
-                <Table bordered title={() => (<span className="table-title">CPU Usage</span>)}  
-                  dataSource={this.state.cpuData} columns={cpuColumns} 
+                <Table bordered title={() => (<span className="table-title">CPU Usage</span>)}
+                  dataSource={this.state.cpuData} columns={cpuColumns}
                   rowKey={row => row.index} pagination={false} size = "small" className = "sysinfo-table"/>
 
-                <Table bordered title={() => (<span className="table-title">RAM Usage</span>)}  
-                  dataSource={this.state.ramData} columns={ramColumns} 
+                <Table bordered title={() => (<span className="table-title">RAM Usage</span>)}
+                  dataSource={this.state.ramData} columns={ramColumns}
                   rowKey={row => row.subject} pagination={false} size = "small" className = "sysinfo-table"/>
-                
-                <Table bordered title={() => (<span className="table-title">Disk Usage</span>)}  
-                  dataSource={this.state.diskData} columns={diskColumns} 
+
+                <Table bordered title={() => (<span className="table-title">Disk Usage</span>)}
+                  dataSource={this.state.diskData} columns={diskColumns}
                   rowKey={row => row.name} pagination={false} size = "small" className = "sysinfo-table"/>
-                
-                <ReactEcharts option={this.state.bandwidth} notMerge={true} lazyUpdate={true} 
-                  className = "sysinfo-table sysinfo-chart"/>
+
+                {/*<ReactEcharts option={this.state.bandwidth} notMerge={true} lazyUpdate={true} */}
+                {/*  className = "sysinfo-table sysinfo-chart"/>*/}
+
                 </div>}
-                {this.state.needLogin ? (
-                  <Login onLoginSuccess = {this.onLoginSuccess}/>
-                ) : (<div></div>)}
+                {this.state.needLogin ?
+                    (<Login onLoginSuccess = {this.onLoginSuccess}/>) : (<div></div>)
+                }
                 <Footer />
             </Fragment>
         )
@@ -276,7 +276,7 @@ class SysInfo extends React.Component {
           right:'50px',
           bottom:'0',
           containLabel: true
-        }, 
+        },
         tooltip: {
           trigger: 'axis',
           axisPointer: {

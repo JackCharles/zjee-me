@@ -1,5 +1,12 @@
 import React from 'react';
-import { Menu, Icon } from 'antd'
+import { Menu } from 'antd'
+import {
+    ControlOutlined,
+    DashboardOutlined,
+    DownloadOutlined,
+    FundProjectionScreenOutlined, HomeOutlined,
+    ReadOutlined
+} from '@ant-design/icons';
 import { Link } from 'react-router-dom'
 import 'antd/dist/antd.css'
 import './NavBar.css'
@@ -12,35 +19,42 @@ class NavBar extends React.Component {
             
                 <Menu.Item key="blog" className = "nav-item">
                     <a href = "https://jackcharles.github.io" target = "_blank" rel='noreferrer noopener'>
-                        <Icon type="read" />
+                        <ReadOutlined />
                         Blog
                     </a>
                 </Menu.Item>
 
+                <Menu.Item key="task-manager" className = "nav-item">
+                    <Link to="/task-manager">
+                        <ControlOutlined />
+                        Task Manager
+                    </Link>
+                </Menu.Item>
+
                 <Menu.Item key="download" className = "nav-item">
                     <Link to="/download">
-                        <Icon type="download" />
+                        <DownloadOutlined />
                         Download
                     </Link>
                 </Menu.Item>
 
-                <Menu.Item key="visit-log" className = "nav-item">
-                    <Link to="/visit-log">
-                        <Icon type="fund" />
-                        Visit Log
-                    </Link>
-                </Menu.Item>
+                {/*<Menu.Item key="visit-log" className = "nav-item">*/}
+                {/*    <Link to="/visit-log">*/}
+                {/*        <FundProjectionScreenOutlined />*/}
+                {/*        Visit Log*/}
+                {/*    </Link>*/}
+                {/*</Menu.Item>*/}
 
                 <Menu.Item key="sys-info" className = "nav-item">
                     <Link to="/sys-info">
-                        <Icon type="dashboard" />
+                        <DashboardOutlined />
                         System Status
                     </Link>
                 </Menu.Item>
 
                 <Menu.Item key="home" className = "nav-item">
                     <Link to="/home">
-                        <Icon type="home" />
+                        <HomeOutlined />
                         Home
                     </Link>
                 </Menu.Item>

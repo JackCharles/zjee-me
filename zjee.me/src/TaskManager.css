@@ -1,0 +1,33 @@
+.content-panel{
+    padding-top: 58px;
+}
+
+.left-panel, .right-panel{
+    float: left;
+    width: 50%;
+    height: calc(100vh - 48px);
+    padding: 20px 20px;
+}
+
+
+.task-log {
+    padding-left: 10px;
+}
+
+#log-area {
+    height: 500px !important;
+}
+
+.task-list-control {
+    margin-top: 10px;
+    float: right;
+}
+
+.page-number {
+    margin: 0 10px;
+}
+
+.task-control-btn {
+    margin-left: 15px;
+    width: 100px;
+}

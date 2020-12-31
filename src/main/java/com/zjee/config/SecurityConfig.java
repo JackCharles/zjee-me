@@ -40,23 +40,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-                .userDetailsService(this::getUserByName)
-                .passwordEncoder(NoOpPasswordEncoder.getInstance());//手动配置数据库密码，这里直接使用明文好了
+            .userDetailsService(this::getUserByName)
+            .passwordEncoder(NoOpPasswordEncoder.getInstance());//手动配置数据库密码，这里直接使用明文好了
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.exceptionHandling()
-                .authenticationEntryPoint(this::needLogin)
-                .and().formLogin()
-                .successHandler(this::onAuthSuccess)
-                .failureHandler(this::onAuthFailure)
-                .and()
-                .authorizeRequests()
-                .antMatchers("/api/sysInfo", "/api/visitLog/**").hasRole(UserRole.ADMIN.name())
-                .antMatchers("/api/download/**").hasRole(UserRole.ADMIN.name())
-                .anyRequest().permitAll();
+            .authenticationEntryPoint(this::needLogin)
+            .and().formLogin()
+            .successHandler(this::onAuthSuccess)
+            .failureHandler(this::onAuthFailure)
+            .and()
+            .authorizeRequests()
+            .antMatchers("/api/sysInfo", "/api/visitLog/**").hasRole(UserRole.ADMIN.name())
+            .antMatchers("/api/download/**").hasRole(UserRole.ADMIN.name())
+            .antMatchers("/api/task/**").hasRole(UserRole.ADMIN.name())
+            .anyRequest().permitAll();
         http.csrf().disable();
     }
 
@@ -76,10 +77,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
         AVObject userInfo = userList.get(0);
         UserDetails userDetails = User.builder()
-                .username(userInfo.getString("user_name"))
-                .password(userInfo.getString("password"))
-                .roles(userInfo.getString("role"))
-                .build();
+            .username(userInfo.getString("user_name"))
+            .password(userInfo.getString("password"))
+            .roles(userInfo.getString("role"))
+            .build();
         log.info("user details: {}", userDetails);
         return userDetails;
     }

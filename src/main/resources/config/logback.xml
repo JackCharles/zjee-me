@@ -61,6 +61,10 @@
         <appender-ref ref="IpCount"/>
     </logger>
 
+<!--    <logger name="com.zjee.dal" addtivity="false" level="debug">-->
+<!--        <appender-ref ref="console"/>-->
+<!--    </logger>-->
+
     <root level="info">
         <appender-ref ref="console"/>
         <appender-ref ref="ERROR"/>

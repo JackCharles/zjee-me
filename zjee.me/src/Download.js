@@ -1,10 +1,11 @@
 import React, {Fragment} from 'react'
-import { Table, Button, Icon, message, Tag, Spin } from 'antd'
+import { Table, Button, message, Tag, Spin } from 'antd'
 import axios from 'axios'
 import NavBar from './NavBar'
 import Footer from './Footer'
 import Login from './Login'
 import './Download.css'
+import {DownloadOutlined, FolderOpenOutlined} from "@ant-design/icons";
 
 class Download extends React.Component {
     constructor(props) {
@@ -45,13 +46,13 @@ class Download extends React.Component {
               <Button className="download-opt-button" 
                 type="primary" 
                 onClick={e => this.onDirOpen(record)}>
-                <Icon type="folder-open"/>
+                  <FolderOpenOutlined />
               </Button>
             ) : (
               <Button className="download-opt-button" 
                 type="primary" 
                 onClick={e => this.onFileDownload(record)}>
-                <Icon type="download"/>
+                  <DownloadOutlined />
               </Button>
             )
           }
