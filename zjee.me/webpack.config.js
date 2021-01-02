@@ -1,6 +1,8 @@
 const path = require('path');
 const srcRoot = "./src"
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const MiniCssPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     entry: {
@@ -20,7 +22,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+                use:[MiniCssPlugin.loader,'css-loader']
             }
         ]
     },
@@ -29,7 +31,12 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: './public/index.html',
             filename: './index.html'
-        })
+        }),
+        new MiniCssPlugin({
+            filename:'./css/[name].css'
+        }),
+
+        new BundleAnalyzerPlugin()
     ],
 
     // dev 代理
