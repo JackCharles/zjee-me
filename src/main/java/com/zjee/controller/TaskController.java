@@ -55,9 +55,20 @@ public class TaskController {
         }
 
         try {
-            String logStr = taskService.getLog(taskInfo.getTaskId(), taskInfo.getPageNo(),
-                taskInfo.getPageSize());
-            return ResponseEntity.ok(logStr);
+            return ResponseEntity.ok(taskService.getLog(taskInfo.getTaskId(), false));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping("hisLog")
+    public ResponseEntity getHistoryLog(@RequestBody TaskInfo taskInfo) {
+        if (taskInfo == null) {
+            return ResponseEntity.badRequest().body("Empty task info");
+        }
+
+        try {
+            return ResponseEntity.ok(taskService.getLog(taskInfo.getTaskId(), true));
         } catch (Exception e) {
             return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -75,5 +86,9 @@ public class TaskController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public static void main(String[] args) {
+        new ProcessBuilder();
     }
 }

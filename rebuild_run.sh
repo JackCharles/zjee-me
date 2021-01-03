@@ -1,5 +1,9 @@
 #!/bin/sh
 
+echo "git pull"
+
+git pull
+
 echo 'kill running process...'
 
 jps | awk '{print $1}' | xargs kill

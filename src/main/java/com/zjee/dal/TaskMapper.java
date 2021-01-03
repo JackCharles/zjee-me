@@ -15,6 +15,9 @@ public interface TaskMapper {
     @Select("select * from cmd_task order by id desc limit #{offset}, #{limit}")
     List<TaskInfo> getAllTask(@Param("limit") int limit, @Param("offset") int offset);
 
+    @Select("select * from cmd_task where task_id = #{taskId}")
+    TaskInfo getTaskById(String taskId);
+
     @Insert("insert into cmd_task (task_id, cmd, time_out, start_time, end_time, exit_status, desc) " +
         "values (#{taskId}, #{cmd}, #{timeOut}, " +
         "#{startTime}, #{endTime}, #{exitStatus}, #{desc})")

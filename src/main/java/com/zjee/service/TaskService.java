@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -24,8 +26,6 @@ public class TaskService implements InitializingBean {
 
     @Autowired
     private TaskMapper taskMapper;
-
-    private final static String STDOUT = "stdout";
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -40,20 +40,16 @@ public class TaskService implements InitializingBean {
         return taskManager.getAllTask(pageNo, pageSize);
     }
 
-    public String getLog(String taskId, int pageNo, int pageSize) {
-        String log = "";
-        String stdOutLog = taskManager.getTaskStdOut(taskId, pageNo, pageSize);
-        String stdErrLog = taskManager.getTaskStdErr(taskId, pageNo, pageSize);
-
-        if(!StringUtils.isEmpty(stdOutLog)) {
-            log += stdOutLog + "\n";
+    public Map<String, String> getLog(String taskId, boolean hisLog) {
+        String log = hisLog ? taskManager.getHistoryLog(taskId) : taskManager.getTaskLog(taskId);
+        Map<String, String> map = new HashMap<>();
+        map.put("log", log);
+        String status = "STOPPED";
+        if(taskManager.getAliveTask(taskId) != null) {
+            status = "RUNNING";
         }
-
-        if(!StringUtils.isEmpty(stdErrLog)) {
-            log += stdErrLog + "\n";
-        }
-
-        return log;
+        map.put("status", status);
+        return map;
     }
 
     public void stopTask(String taskId) {

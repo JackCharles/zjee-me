@@ -3,6 +3,7 @@ package com.zjee.task;
 import com.zjee.pojo.TaskInfo;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -10,9 +11,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Data
 @Slf4j
@@ -24,13 +28,13 @@ public class CmdRunner {
 
     private Process process;
 
-    private BufferedReader stdOutReader;
-
-    private BufferedReader stdErrReader;
+    private BufferedReader outputReader;
 
     private static final int SUCCESS_STATUS = 0;
 
     private static final int INTERRUPT_STATUS = -9999;
+
+    public static final int RUNNING_STATUS = -8888;
 
     private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -45,9 +49,20 @@ public class CmdRunner {
 
     public void run(int timeoutSec) throws IOException {
         taskInfo.setStartTime(LocalDateTime.now().format(DEFAULT_FORMATTER));
-        process = Runtime.getRuntime().exec(taskInfo.getCmd());
-        stdOutReader = new BufferedReader(new InputStreamReader(process.getInputStream(), getCharset()));
-        stdErrReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), getCharset()));
+        taskInfo.setExitStatus(RUNNING_STATUS);
+        List<String> cmdList = Arrays.stream(taskInfo.getCmd().split(" "))
+            .map(StringUtils::trimAllWhitespace)
+            .filter(s -> !StringUtils.isEmpty(s))
+            .collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(cmdList)) {
+            throw new RuntimeException("Invalid command: " + taskInfo.getCmd());
+        }
+        log.info("Process starting: {}", String.join(" ", cmdList));
+        this.process = new ProcessBuilder(cmdList)
+            .redirectErrorStream(true)
+            .start();
+        log.info("Process started: {}", String.join(" ", cmdList));
+        outputReader = new BufferedReader(new InputStreamReader(this.process.getInputStream(), getCharset()));
         waitForFinish(timeoutSec);
     }
 
@@ -77,30 +92,17 @@ public class CmdRunner {
         }
     }
 
-    public String readStdOut(int maxCount) {
-        return readOutput(maxCount, stdOutReader);
-    }
-
-    public String readStdErr(int maxCount) {
-        return readOutput(maxCount, stdErrReader);
-    }
-
-    private String readOutput(int maxCount, BufferedReader reader) {
-        if (null == reader) {
+    public String readOutput() {
+        if (null == outputReader) {
             return null;
         }
 
-        if (maxCount < 0) {
-            maxCount = Integer.MAX_VALUE;
-        }
-
         String line;
-        int i = 0;
         StringBuilder builder = new StringBuilder();
         try {
-            while (i < maxCount && (line = reader.readLine()) != null) {
+            //Note: readLine在缓冲区未满、流未关闭、没有遇见换行符的情况下会阻塞掉，因此读之前都需要判断数据是否就绪
+            while (outputReader.ready() && (line = outputReader.readLine()) != null) {
                 builder.append(line).append("\n");
-                i++;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

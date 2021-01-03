@@ -3,7 +3,7 @@ import {Button, Divider, Form, Input, message, Table, Tooltip} from "antd";
 import NavBar from "./NavBar";
 import './TaskManager.css'
 import axios from "axios";
-import {CheckCircleTwoTone, CloseCircleTwoTone} from "@ant-design/icons";
+import {CheckCircleTwoTone, CloseCircleTwoTone, EyeTwoTone} from "@ant-design/icons";
 import Footer from "./Footer";
 import Login from "./Login";
 
@@ -35,8 +35,6 @@ class TaskManager extends React.Component {
         this.state = {
             taskId: "",
             taskLog: "",
-            logPageNo: 0,
-            logPageSize: 100,
             timerId: -1,
             taskRunning: false,
             taskList: [],
@@ -52,6 +50,8 @@ class TaskManager extends React.Component {
         this.changePage = this.changePage.bind(this);
         this.killTask = this.killTask.bind(this);
         this.onLoginSuccess = this.onLoginSuccess.bind(this);
+        this.viewTask = this.viewTask.bind(this);
+        this.getHistoryLog = this.getHistoryLog.bind(this);
     }
 
     componentDidMount() {
@@ -129,8 +129,10 @@ class TaskManager extends React.Component {
                                pagination={false}
                         >
                             <Table.Column title="Status" dataIndex="exitStatus" key="status" render={
-                                s => s === 0 ?
+                                (s, r) => s === 0 ?
                                     (<CheckCircleTwoTone twoToneColor="#52c41a"/>) :
+                                    s === -8888 ?
+                                    (<a onClick={()=>this.viewTask(r)}><EyeTwoTone /></a>) :
                                     (<CloseCircleTwoTone twoToneColor="#ff0000"/>)
                             }/>
 
@@ -179,35 +181,31 @@ class TaskManager extends React.Component {
             let log = `Task submit successfully.\nTask id: ${data.taskId}\nTask cmd: ${data.cmd}\nStart time: ${data.startTime}\n`
 
             // 开启定时器读取日志
-            let timerId = setInterval(this.getLog, 2000);
+            let timerId = setInterval(this.getLog, 2000, data.taskId);
             // 更新状态
             this.setState({taskLog: log, taskId: data.taskId, timerId: timerId, taskRunning: true});
         }).catch(err => {
             message.error(err.message);
             this.setState({
-                taskLog: this.state.taskLog +
-                    err.message + '\n' + err.response.data
+                taskLog: err.message + '\n' + err.response.data
             });
         });
     }
     ;
 
-    getLog() {
-        axios.post("/api/task/log", {
-            taskId: this.state.taskId,
-            pageNo: this.state.logPageNo,
-            pageSize: this.state.logPageSize
-        }).then(res => {
-            let log = res.data;
-            let taskRunning = true;
-            if (!log) {
+    getLog(taskId) {
+        axios.post("/api/task/log", {taskId}).then(res => {
+            let data = res.data;
+            let taskRunning = data.status === "RUNNING";
+            let log = data.log;
+
+            // Task End
+            if (!taskRunning) {
                 clearInterval(this.state.timerId);
-                log += 'Process End!'
-                taskRunning = false;
             }
+
             this.setState({
                 taskLog: this.state.taskLog + log,
-                logPageNo: this.state.logPageNo + 1,
                 taskRunning
             }, viewLatestLog);
         }).catch(err => {
@@ -251,6 +249,36 @@ class TaskManager extends React.Component {
 
     onLoginSuccess(){
         this.setState({needLogin: false}, ()=>this.getTaskList())
+    }
+
+    viewTask(record) {
+        console.log(record);
+        let taskRunning = record.exitStatus === -8888;
+        let log = `Task submit successfully.\nTask id: ${record.taskId}\nTask cmd: ${record.cmd}\nStart time: ${record.startTime}\n`
+        log += this.getHistoryLog(record.taskId) + "\n";
+        let timerId = -1;
+        if(taskRunning) {
+            timerId = setInterval(this.getLog, 2000, record.taskId);
+        }
+
+        this.setState({
+            taskId: record.taskId,
+            taskRunning,
+            taskLog: log,
+            timerId
+        });
+    }
+
+    getHistoryLog(taskId){
+        let log = "====== No History Log ======";
+        axios.post("/api/task/hisLog", {taskId}).then(res => {
+            console.log(res);
+            log = res.data.log;
+        }).catch(err => {
+            message.error(err.message);
+            log = err.response.data;
+        });
+        return log;
     }
 }
 
