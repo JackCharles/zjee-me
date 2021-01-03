@@ -87,8 +87,4 @@ public class TaskController {
             return new ResponseEntity<>(e.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    public static void main(String[] args) {
-        new ProcessBuilder();
-    }
 }
