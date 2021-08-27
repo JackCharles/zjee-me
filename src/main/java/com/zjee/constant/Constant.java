@@ -16,13 +16,10 @@ public class Constant {
 
     public static String HITOKOTO_URL = "https://v1.hitokoto.cn";
 
-    public static String VPS_INFO_URL = "https://manage.hostdare.com/clientarea.php?action=productdetails&id=32166&api=json&act=vpsmanage&stats=1&svs=";
-    public static String LOGIN_URL = "https://manage.hostdare.com/dologin.php";
-    public static String COOKIE_NAME = "WHMCSQnFy6YcDKurd";
-
     public static String LEAN_CLOUD_APP_ID = "hiuyEvHNGJv0HBzIgke1FOa2-MdYXbMMI";
     public static String LEAN_CLOUD_APP_KEY = "W2WW9ah2D4zfyhW3aYtKw3xD";
 
     public static String USER_INFO_CLASS = "zjeeAccount";
-    public static String HOSTDARE_INFO_CLASS = "HostDareAccount";
+
+    public static String BWG_API_URL = "https://api.64clouds.com/v1/getServiceInfo?veid=1633631&api_key=private_k4okKVkHsp757vMz01dyyug7";
 }
