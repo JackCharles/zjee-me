@@ -48,7 +48,7 @@ public class SystemInfoService {
         Long currUsage = bandwidthData.get("currUsage");
         bandInfo.put("totalBand", CommonUtil.formatByteUnit(totalBand));
         bandInfo.put("currUsage", CommonUtil.formatByteUnit(currUsage));
-        bandInfo.put("usedPercent", currUsage * 1.0d / totalBand);
+        bandInfo.put("usedPercent", CommonUtil.round(currUsage * 100.0d / totalBand, 2));
         return bandInfo;
     }
 
