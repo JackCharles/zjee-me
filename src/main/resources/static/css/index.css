@@ -28341,7 +28341,7 @@ div.ant-typography-edit-content.ant-typography-rtl {
 #sysinfo-content {
   text-align: center;
   margin-top: 48px;
-  margin-bottom: 45px;
+  padding-bottom: 45px;
 }
 
 #sysinfo-dashboard-area {
@@ -28390,7 +28390,7 @@ div.ant-typography-edit-content.ant-typography-rtl {
   margin-left: 10%;
   margin-right: 10%;
   margin-top: 48px;
-  margin-bottom: 45px;
+  padding-bottom: 45px;
   padding-top: 10px;
 }
 
@@ -28421,6 +28421,7 @@ div.ant-typography-edit-content.ant-typography-rtl {
 }
 .content-panel{
     padding-top: 58px;
+    padding-bottom: 45px;
 }
 
 .left-panel, .right-panel{
@@ -28451,4 +28452,44 @@ div.ant-typography-edit-content.ant-typography-rtl {
 .task-control-btn {
     margin-left: 15px;
     width: 100px;
+}
+#visit-content {
+  text-align: center;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-top: 48px;
+  padding-bottom: 45px;
+  padding-top: 10px;
+}
+
+.visit-chart {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+}
+
+#visit-date {
+  text-align: left;
+  margin-top: 20px;
+}
+
+.visit-query {
+  margin-left: 10px;
+  width: 100px;
+}
+
+.visit-table {
+  margin-top: 8px;
+}
+
+.visitlog-loading {
+  position: fixed;
+  top: 45%;
+  left: 0px;
+  right: 0px;
+  width: 200px;
+  margin: auto;
+}
+
+.table-title {
+  font-weight: bold;
 }

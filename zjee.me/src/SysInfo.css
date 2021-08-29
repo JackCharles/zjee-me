@@ -10,7 +10,7 @@
 #sysinfo-content {
   text-align: center;
   margin-top: 48px;
-  margin-bottom: 45px;
+  padding-bottom: 45px;
 }
 
 #sysinfo-dashboard-area {

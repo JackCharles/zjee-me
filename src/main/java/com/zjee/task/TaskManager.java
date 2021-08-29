@@ -5,6 +5,7 @@ import com.zjee.pojo.TaskInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,6 +33,10 @@ public class TaskManager {
     private static final String LOG_BASE_DIR = "logs/task/";
 
     private static final String LOG_END_MARK = "====== TASK END ======";
+
+    static {
+        checkLogBase();
+    }
 
     public TaskManager(int maxTaskCount, TaskMapper taskMapper) {
         if (maxTaskCount < 0) {
@@ -178,5 +183,13 @@ public class TaskManager {
 
     private boolean checkFile(String fileName) {
         return Files.exists(Paths.get(fileName));
+    }
+
+    private static boolean checkLogBase() {
+        File logBase = new File(LOG_BASE_DIR);
+        if(!logBase.exists()) {
+            return logBase.mkdir();
+        }
+        return false;
     }
 }

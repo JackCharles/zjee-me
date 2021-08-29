@@ -1,104 +1,155 @@
 package com.zjee.service.util;
 
-import org.hyperic.sigar.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.VirtualMemory;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSFileStore;
+import oshi.software.os.OperatingSystem;
 
 import java.util.*;
 
+@Slf4j
 @Component
 public class SystemInfoTracker {
 
-    private Sigar sigar = new Sigar();
+    private static HardwareAbstractionLayer hardware;
 
+    private static OperatingSystem os;
+
+    static {
+        SystemInfo systemInfo = new SystemInfo();
+        hardware = systemInfo.getHardware();
+        os = systemInfo.getOperatingSystem();
+    }
+
+    /**
+     * Mem info
+     * @return
+     */
     public Map<String, Object> getPhysicalMemoryInfo() {
         Map<String, Object> memInfo = new HashMap<>();
         try {
-            Mem mem = sigar.getMem();
+            GlobalMemory mem = hardware.getMemory();
+            long totalMem = mem.getTotal();
+            long availableMem = mem.getAvailable();
+            long usedMem =totalMem - availableMem;
             memInfo.put("subject", "RAM");
-            memInfo.put("total", CommonUtil.formatByteUnit(mem.getTotal()));
-            memInfo.put("used", CommonUtil.formatByteUnit(mem.getUsed()));
-            memInfo.put("usedPercent", CommonUtil.doubleToPercent(mem.getUsedPercent() / 100.0));
-            memInfo.put("usedPercentD", CommonUtil.round(mem.getUsedPercent(), 2));
-            memInfo.put("free", CommonUtil.formatByteUnit(mem.getFree()));
-            memInfo.put("freePercent", CommonUtil.doubleToPercent(mem.getFreePercent() / 100.0));
-        } catch (SigarException e) {
+            memInfo.put("total", CommonUtil.formatByteUnit(totalMem));
+            memInfo.put("used", CommonUtil.formatByteUnit(usedMem));
+            memInfo.put("usedPercent", CommonUtil.doubleToPercent(usedMem * 1.0 / totalMem));
+            memInfo.put("usedPercentD", CommonUtil.round(usedMem * 100.0 / totalMem, 2));
+            memInfo.put("free", CommonUtil.formatByteUnit(availableMem));
+            memInfo.put("freePercent", CommonUtil.doubleToPercent(availableMem * 1.0 / totalMem));
+        } catch (Throwable e) {
+            log.error("ERROR:", e);
             memInfo = Collections.emptyMap();
         }
         return memInfo;
     }
 
+    /**
+     * Swap Info
+     * @return
+     */
     public Map<String, String> getSwapInfo() {
         Map<String, String> swapInfo = new HashMap<>();
         try {
-            Swap swap = sigar.getSwap();
+            VirtualMemory vMem = hardware.getMemory().getVirtualMemory();
+            long swapTotal = vMem.getSwapTotal();
+            long swapUsed = vMem.getSwapUsed();
+            long availableSwap = swapTotal - swapUsed;
             swapInfo.put("subject", "SWAP");
-            swapInfo.put("total", CommonUtil.formatByteUnit(swap.getTotal()));
-            swapInfo.put("used", CommonUtil.formatByteUnit(swap.getUsed()));
-            swapInfo.put("usedPercent", CommonUtil.doubleToPercent((swap.getUsed() * 1.0) / swap.getTotal()));
-            swapInfo.put("free", CommonUtil.formatByteUnit(swap.getFree()));
-            swapInfo.put("freePercent", CommonUtil.doubleToPercent((swap.getFree() * 1.0) / swap.getTotal()));
-        } catch (SigarException e) {
+            swapInfo.put("total", CommonUtil.formatByteUnit(swapTotal));
+            swapInfo.put("used", CommonUtil.formatByteUnit(swapUsed));
+            swapInfo.put("usedPercent", CommonUtil.doubleToPercent(swapUsed * 1.0 / swapTotal));
+            swapInfo.put("free", CommonUtil.formatByteUnit(availableSwap));
+            swapInfo.put("freePercent", CommonUtil.doubleToPercent(availableSwap * 1.0 /swapTotal));
+        } catch (Throwable e) {
+            log.error("ERROR: ", e);
             swapInfo = Collections.emptyMap();
         }
         return swapInfo;
     }
 
-
+    /**
+     * Cpu Info
+     * @return
+     */
     public Map<String, Object> getCpuInfo() {
         Map<String, Object> cpuInfo = new HashMap<>();
         try {
-            double totalUsage = 0;
-            CpuPerc[] cpuList = sigar.getCpuPercList();
-            cpuList = (cpuList == null ? new CpuPerc[]{} : cpuList);
-            List<Map<String, Object>> cpuUsageList = new ArrayList<>();
-            for (int i = 0; i < cpuList.length; ++i) {
-                cpuUsageList.add(cpuPercToMap(cpuList[i], i));
-                totalUsage += cpuList[i].getCombined();
+            CentralProcessor processor = hardware.getProcessor();
+            long[][] firstTicks = processor.getProcessorCpuLoadTicks();
+            long[] firstSysCpuLoad = processor.getSystemCpuLoadTicks();
+            Thread.sleep(1000);
+            long[][] secondTicks = processor.getProcessorCpuLoadTicks();
+            double systemCpuLoad = processor.getSystemCpuLoadBetweenTicks(firstSysCpuLoad);
+            int logicProcessorCount = processor.getLogicalProcessorCount();
+            List<Map<String, Object>> cpuUsageList = new ArrayList<>(logicProcessorCount);
+            List<CentralProcessor.LogicalProcessor> lcpus = processor.getLogicalProcessors();
+            for (int i = 0; i < logicProcessorCount; i++) {
+                Map<String, Object> detailMap = cpuLoadTicksToMap(firstTicks[i], secondTicks[i]);
+                detailMap.put("name", "CPU " + lcpus.get(i).getProcessorNumber());
+                cpuUsageList.add(detailMap);
             }
-            Collections.sort(cpuUsageList, Comparator.comparingInt(m -> ((int) m.get("index"))));
+
             cpuInfo.put("detail", cpuUsageList);
-            cpuInfo.put("usage", CommonUtil.round((totalUsage * 100.0) / cpuList.length, 2));
-        } catch (SigarException e) {
+            cpuInfo.put("usage", CommonUtil.round(systemCpuLoad * 100, 2));
+        } catch (Throwable e) {
+            log.error("ERROR: ", e);
             cpuInfo = Collections.emptyMap();
         }
         return cpuInfo;
     }
 
-    private Map<String, Object> cpuPercToMap(CpuPerc cpu, int index) {
+    private Map<String, Object> cpuLoadTicksToMap(long[] firstTicks, long[] secondTicks) {
         Map<String, Object> map = new HashMap<>();
-        map.put("index", index);
-        map.put("user", CpuPerc.format(cpu.getUser()));
-        map.put("system", CpuPerc.format(cpu.getSys()));
-        map.put("wait", CpuPerc.format(cpu.getWait()));
-        map.put("error", CpuPerc.format(cpu.getNice()));
-        map.put("idle", CpuPerc.format(cpu.getIdle()));
-        map.put("total", CpuPerc.format(cpu.getCombined()));
+        long total = Arrays.stream(secondTicks).sum() - Arrays.stream(firstTicks).sum();
+        for (CentralProcessor.TickType tickType : CentralProcessor.TickType.values()) {
+            map.put(tickType.name(), CommonUtil.doubleToPercent(
+                    (secondTicks[tickType.getIndex()] - firstTicks[tickType.getIndex()]) * 1.0 / total));
+        }
         return map;
     }
 
+    /**
+     * get disk info
+     * @return
+     */
     public Map<String, Object> getFileSystemInfo() {
         Map<String, Object> fsMap = new HashMap<>();
         try {
+            FileSystem fileSystem = os.getFileSystem();
+            List<OSFileStore> fileStores = fileSystem.getFileStores();
             List<Map<String, Object>> fsUsage = new ArrayList<>();
-            FileSystem[] fsList = sigar.getFileSystemList();
-            fsList = (fsList == null ? new FileSystem[]{} : fsList);
-            for (FileSystem fs : fsList) {
+            long fsTotalSpace = 0;
+            long fsFreeSpace = 0;
+            for (OSFileStore fs : fileStores) {
                 Map<String, Object> map = new HashMap<>();
-                map.put("name", fs.getDirName());
-                map.put("type", fs.getSysTypeName());
-                FileSystemUsage fsu = sigar.getFileSystemUsage(fs.getDirName());
-                map.put("total", CommonUtil.formatKBUnit(fsu.getTotal()));
-                map.put("used", CommonUtil.formatKBUnit(fsu.getUsed()));
-                map.put("usedPercent", CommonUtil.doubleToPercent(fsu.getUsePercent()));
-                map.put("free", CommonUtil.formatKBUnit(fsu.getFree()));
-                map.put("available", CommonUtil.formatKBUnit(fsu.getAvail()));
-                map.put("files", fsu.getFiles());
+                long totalSpace = fs.getTotalSpace();
+                long freeSpace = fs.getFreeSpace();
+                long usedSpace = totalSpace - freeSpace;
+                fsTotalSpace += totalSpace;
+                fsFreeSpace += freeSpace;
+
+                map.put("name", fs.getName());
+                map.put("type", fs.getType());
+                map.put("total", CommonUtil.formatByteUnit(totalSpace));
+                map.put("used", CommonUtil.formatByteUnit(usedSpace));
+                map.put("usedPercent", CommonUtil.doubleToPercent(usedSpace* 1.0 / totalSpace));
+                map.put("free", CommonUtil.formatByteUnit(freeSpace));
+                map.put("available", CommonUtil.formatByteUnit(fs.getUsableSpace()));
                 fsUsage.add(map);
-                if ("/".equals(fs.getDirName())) {
-                    fsMap.put("usage", CommonUtil.round((fsu.getTotal() - fsu.getAvail()) * 100.0 / fsu.getTotal(), 2));
+                if ("/".equals(fs.getName())) {
+                    fsMap.put("usage", CommonUtil.round(usedSpace * 100.0 / totalSpace, 2));
                 }
             }
-            Collections.sort(fsUsage, (f1, f2) -> String.valueOf(f1.get("name")).compareToIgnoreCase(String.valueOf(f2.get("name"))));
+            fsMap.put("usage", CommonUtil.round((fsTotalSpace - fsFreeSpace) * 100.0 / fsTotalSpace, 2));
             fsMap.put("detail", fsUsage);
         } catch (Exception e) {
             fsMap = Collections.emptyMap();

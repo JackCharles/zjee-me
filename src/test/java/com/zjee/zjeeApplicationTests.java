@@ -3,9 +3,6 @@ package com.zjee;
 import com.zjee.controller.WeatherApiController;
 import com.zjee.controller.vo.CommonResponse;
 import com.zjee.service.util.IpInfoGenerator;
-import org.hyperic.sigar.OperatingSystem;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +21,6 @@ public class zjeeApplicationTests {
     @Autowired
     WeatherApiController weatherApiController;
 
-    @Test
-    public void contextLoads() throws SigarException {
-        Sigar sigar = new Sigar();
-        System.out.println(OperatingSystem.getInstance().toMap());
-    }
 
     @Test
     public void test(){

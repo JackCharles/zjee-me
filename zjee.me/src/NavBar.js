@@ -4,7 +4,8 @@ import {
     ControlOutlined,
     DashboardOutlined,
     DownloadOutlined,
-    FundProjectionScreenOutlined, HomeOutlined,
+    FundProjectionScreenOutlined,
+    HomeOutlined,
     ReadOutlined
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom'
@@ -38,12 +39,12 @@ class NavBar extends React.Component {
                     </Link>
                 </Menu.Item>
 
-                {/*<Menu.Item key="visit-log" className = "nav-item">*/}
-                {/*    <Link to="/visit-log">*/}
-                {/*        <FundProjectionScreenOutlined />*/}
-                {/*        Visit Log*/}
-                {/*    </Link>*/}
-                {/*</Menu.Item>*/}
+                <Menu.Item key="visit-log" className = "nav-item">
+                    <Link to="/visit-log">
+                        <FundProjectionScreenOutlined />
+                        Visit Log
+                    </Link>
+                </Menu.Item>
 
                 <Menu.Item key="sys-info" className = "nav-item">
                     <Link to="/sys-info">

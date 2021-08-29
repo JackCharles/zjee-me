@@ -4,6 +4,7 @@ import Home from './Home'
 import SysInfo from './SysInfo'
 import Download from './Download'
 import TaskManager from './TaskManager'
+import VisitLog from "./VisitLog";
 
 const BasicRoute = () => (
     <HashRouter>
@@ -11,7 +12,7 @@ const BasicRoute = () => (
             <Route exact path="/" component={Home}/>
             <Route exact path="/home" component={Home}/>
             <Route exact path="/sys-info" component={SysInfo}/>
-            {/*<Route exact path="/visit-log" component={VisitLog}/>*/}
+            <Route exact path="/visit-log" component={VisitLog}/>
             <Route exact path="/download" component={Download}/>
             <Route exact path="/task-manager" component={TaskManager}/>
         </Switch>

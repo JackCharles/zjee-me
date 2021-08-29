@@ -5,6 +5,7 @@ import Footer from './Footer'
 import Login from './Login'
 import './SysInfo.css'
 import axios from "axios";
+import ReactEcharts from "echarts-for-react";
 
 const ramColumns = [
   {
@@ -48,46 +49,58 @@ const ramColumns = [
 const cpuColumns = [
   {
     title: 'CPU',
-    key: 'cpu',
+    dataIndex: 'name',
+    key: 'name',
     align: 'center',
-    render: (text, record) => `CPU${record.index}`
   },
   {
-    title: 'User',
-    dataIndex: 'user',
+    title: 'USER',
+    dataIndex: 'USER',
     key: 'user',
     align: 'center'
   },
   {
-    title: 'System',
-    dataIndex: 'system',
+    title: 'NICE',
+    dataIndex: 'NICE',
+    key: 'nice',
+    align: 'center'
+  },
+  {
+    title: 'SYSTEM',
+    dataIndex: 'SYSTEM',
     key: 'system',
     align: 'center'
   },
   {
-    title: 'Wait',
-    dataIndex: 'wait',
-    key: 'wait',
-    align: 'center'
-  },
-  {
-    title: 'Error',
-    dataIndex: 'error',
-    key: 'error',
-    align: 'center'
-  },
-  {
-    title: 'Total Used',
-    dataIndex: 'total',
-    key: 'total',
-    align: 'center'
-  },
-  {
-    title: 'Idle',
-    dataIndex: 'idle',
+    title: 'IDLE',
+    dataIndex: 'IDLE',
     key: 'idle',
     align: 'center'
   },
+  {
+    title: 'IOWAIT',
+    dataIndex: 'IOWAIT',
+    key: 'io-wait',
+    align: 'center'
+  },
+  {
+    title: 'IRQ',
+    dataIndex: 'IRQ',
+    key: 'irq',
+    align: 'center'
+  },
+  {
+    title: 'SOFTIRQ',
+    dataIndex: 'SOFTIRQ',
+    key: 'softirq',
+    align: 'center'
+  },
+  {
+    title: 'STEAL',
+    dataIndex: 'STEAL',
+    key: 'steal',
+    align: 'center'
+  }
 ]
 
 const diskColumns = [
@@ -128,15 +141,9 @@ const diskColumns = [
     align: 'center'
   },
   {
-    title: 'Availiable',
+    title: 'Available',
     dataIndex: 'available',
     key: 'available',
-    align: 'center'
-  },
-  {
-    title: 'Files',
-    dataIndex: 'files',
-    key: 'files',
     align: 'center'
   }
 ]
@@ -216,8 +223,8 @@ class SysInfo extends React.Component {
                   dataSource={this.state.diskData} columns={diskColumns}
                   rowKey={row => row.name} pagination={false} size = "small" className = "sysinfo-table"/>
 
-                {/*<ReactEcharts option={this.state.bandwidth} notMerge={true} lazyUpdate={true} */}
-                {/*  className = "sysinfo-table sysinfo-chart"/>*/}
+                <ReactEcharts option={this.state.bandwidth} notMerge={true} lazyUpdate={true}
+                  className = "sysinfo-table sysinfo-chart"/>
 
                 </div>}
                 {this.state.needLogin ?
@@ -242,7 +249,7 @@ class SysInfo extends React.Component {
             diskData: res.data.data.disk.detail,
             diskUsage: res.data.data.disk.usage,
             bandUsage: res.data.data.bandwidth.usedPercent,
-            bandwidth: this.getOption(res.data.data.bandwidth.date, res.data.data.bandwidth.incoming, res.data.data.bandwidth.outgoing),
+            bandwidth: this.getOption(res.data.data.bandwidth.dt, res.data.data.bandwidth.dataUsage)
           })
         }
         else {
@@ -264,7 +271,7 @@ class SysInfo extends React.Component {
       this.getSysInfoData()
     }
 
-    getOption(date, incoming, outgoing) {
+    getOption(date, dataUsage) {
       return {
         title: {
           show: true,
@@ -286,10 +293,6 @@ class SysInfo extends React.Component {
               }
             }
         },
-        legend: {
-          data:['Incoming','Outgoing'],
-          left: "right"
-        },
         xAxis: {
           name: 'Date',
           type: 'category',
@@ -308,14 +311,8 @@ class SysInfo extends React.Component {
         },
         series: [
           {
-            name: 'Incoming',
-            data: incoming,
-            type: 'bar',
-            barMaxWidth: '10px'
-          },
-          {
-            name: 'Outgoing',
-            data: outgoing,
+            name: 'Data Usage',
+            data: dataUsage,
             type: 'bar',
             barMaxWidth: '10px'
           },

@@ -18,11 +18,11 @@ import java.math.BigDecimal;
 @Slf4j
 public class CommonUtil {
 
-    private static final long KB = 1204L;
+    public static final long KB = 1204L;
 
-    private static final long MB = 1024L * 1024L;
+    public static final long MB = 1024L * 1024L;
 
-    private static final long GB = 1024L * 1024L * 1024L;
+    public static final long GB = 1024L * 1024L * 1024L;
 
     public static String readStreamToString(InputStream stream) {
         try {
@@ -64,10 +64,6 @@ public class CommonUtil {
             return String.format("%.2fKB", (byteLen * 1.0) / KB);
         }
         return String.format("%dB", byteLen);
-    }
-
-    public static String formatKBUnit(long kb) {
-        return formatByteUnit(kb * 1024L);
     }
 
     public static double toDouble(Object object) {

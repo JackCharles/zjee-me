@@ -8,3 +8,11 @@ CREATE TABLE IF NOT EXISTS cmd_task(
     exit_status int comment 'exit value',
     desc        varchar(255)  comment 'cmd description'
 ) comment 'cmd task info';
+
+
+CREATE TABLE IF NOT EXISTS bandwidth_stat(
+    dt          timestamp primary key comment 'date time',
+    usage_today bigint comment 'today usage',
+    usage_total bigint comment 'total usage',
+    capacity    bigint comment 'bandwidth total'
+) comment 'bandwidth usage statistic';

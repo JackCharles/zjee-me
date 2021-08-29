@@ -309,4 +309,11 @@ public class HomeController {
         }
         return parms.toArray();
     }
+
+    @RequestMapping("/api/bandwidth/cut")
+    @ResponseBody
+    public String bandwidthDailyCut() {
+        systemInfoService.statisticBandwidthUsage();
+        return "OK";
+    }
 }

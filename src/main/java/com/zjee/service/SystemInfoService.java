@@ -3,6 +3,8 @@ package com.zjee.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zjee.constant.Constant;
+import com.zjee.dal.BandwidthMapper;
+import com.zjee.pojo.BwStat;
 import com.zjee.service.util.CommonUtil;
 import com.zjee.service.util.SystemInfoTracker;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +15,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,6 +30,9 @@ public class SystemInfoService {
 
     @Autowired
     private SystemInfoTracker systemInfoTracker;
+
+    @Autowired
+    private BandwidthMapper bandwidthMapper;
 
     public Map<String, Map> getSystemInfo() {
         Map<String, Map> map = new HashMap<>();
@@ -39,20 +48,33 @@ public class SystemInfoService {
     //带宽使用情况
     private Map<String, Object> getBandwidthInfo() {
         Map<String, Object> bandInfo = new HashMap<>();
-        Map<String, Long> bandwidthData = getBandwidthData();
-        if(bandwidthData == null) {
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        List<BwStat> bwStat = bandwidthMapper.getBwStat(today.minusDays(30), today.minusDays(1));
+        if (bwStat.isEmpty()) {
+            bandInfo.put("totalBand", 0);
+            bandInfo.put("currUsage", 0);
+            bandInfo.put("usedPercent", 100);
             return bandInfo;
         }
-        //GB
-        Long totalBand = bandwidthData.get("totalBand");
-        Long currUsage = bandwidthData.get("currUsage");
-        bandInfo.put("totalBand", CommonUtil.formatByteUnit(totalBand));
-        bandInfo.put("currUsage", CommonUtil.formatByteUnit(currUsage));
-        bandInfo.put("usedPercent", CommonUtil.round(currUsage * 100.0d / totalBand, 2));
+
+        bwStat.sort(Comparator.comparing(BwStat::getDt, LocalDateTime::compareTo));
+        BwStat sample = bwStat.get(0);
+        bandInfo.put("totalBand", CommonUtil.formatByteUnit(sample.getCapacity()));
+        bandInfo.put("currUsage", CommonUtil.formatByteUnit(sample.getUsageTotal()));
+        bandInfo.put("usedPercent", CommonUtil.round(sample.getUsageTotal() * 100.0d / sample.getCapacity(), 2));
+        List<String> dts = new ArrayList<>();
+        List<Double> usage = new ArrayList<>();
+        for (BwStat bw : bwStat) {
+            dts.add(bw.getDt().toLocalDate().toString());
+            usage.add(CommonUtil.round(bw.getUsageToday() * 1.0 / CommonUtil.MB, 0));
+        }
+        bandInfo.put("dt", dts);
+        bandInfo.put("dataUsage", usage);
         return bandInfo;
     }
 
-    private Map<String, Long> getBandwidthData(){
+    @Scheduled(cron = "0 55 23 * * *")
+    public void statisticBandwidthUsage(){
         HttpClient client = HttpClients.createDefault();
         HttpGet get = new HttpGet(Constant.BWG_API_URL);
         try {
@@ -63,13 +85,23 @@ public class SystemInfoService {
             }
             String json = EntityUtils.toString(response.getEntity());
             JSONObject jsonObject = JSON.parseObject(json);
-            Map<String, Long> bandWidthUsage = new HashMap<>();
-            bandWidthUsage.put("totalBand", jsonObject.getLong("plan_monthly_data"));
-            bandWidthUsage.put("currUsage", jsonObject.getLong("data_counter"));
-            return bandWidthUsage;
+            Long totalData = jsonObject.getLong("plan_monthly_data");
+            Long dataUsage = jsonObject.getLong("data_counter");
+            LocalDateTime today = LocalDate.now().minusDays(1).atStartOfDay();
+            LocalDateTime yesterday = today.minusDays(1);
+            List<BwStat> bwStat = bandwidthMapper.getBwStat(yesterday, yesterday);
+            long lastUsageSum = 0;
+            if(!CollectionUtils.isEmpty(bwStat)) {
+                lastUsageSum = bwStat.get(0).getUsageTotal();
+            }
+            BwStat toDayUsage = new BwStat();
+            toDayUsage.setDt(today);
+            toDayUsage.setCapacity(totalData);
+            toDayUsage.setUsageToday(dataUsage - lastUsageSum);
+            toDayUsage.setUsageTotal(dataUsage);
+            bandwidthMapper.insertOne(toDayUsage);
         }catch (Exception e) {
             log.error("get bandwidth usage error: ", e);
         }
-        return null;
     }
 }

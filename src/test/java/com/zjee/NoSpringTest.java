@@ -6,11 +6,8 @@ import cn.leancloud.AVQuery;
 import cn.leancloud.core.AVOSCloud;
 import com.zjee.service.WeatherService;
 import com.zjee.service.WebPicService;
-import com.zjee.service.util.SystemInfoTracker;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import org.hyperic.sigar.FileSystem;
-import org.hyperic.sigar.Sigar;
 import org.junit.Test;
 
 import java.time.LocalDate;
@@ -38,17 +35,6 @@ public class NoSpringTest {
     public void imageUrlTest() throws Exception {
         webPicService.batchGetPhotoUrl("内华达", LocalDate.now().toString()).forEach(System.out::println);
     }
-
-    @Test
-    public void sigarTest() throws Exception {
-        Sigar sigar = new Sigar();
-        SystemInfoTracker systemInfoTracker = new SystemInfoTracker();
-        FileSystem[] fileSystemList = sigar.getFileSystemList();
-        for (FileSystem f : fileSystemList) {
-            System.out.println(f.toMap());
-        }
-    }
-
 
     @Test
     public void LeanCloudTest() throws Exception {
