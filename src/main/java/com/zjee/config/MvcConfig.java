@@ -19,6 +19,7 @@ public class MvcConfig implements WebMvcConfigurer {
      * @return
      */
     @Bean
+    @SuppressWarnings({"rawtypes", "unchecked"})
     FilterRegistrationBean getFilterRegistrationBean(IpCountFilter myFilter) {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(myFilter);
         filterRegistrationBean.addUrlPatterns("/*");

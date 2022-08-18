@@ -10,6 +10,8 @@ import com.zjee.service.SystemInfoService;
 import com.zjee.service.VisitorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -78,12 +80,10 @@ public class HomeController {
             response.setCode(ResponseStatus.ERROR_CODE);
             response.setMsg("file does not exist.");
             return response;
-        }
-        else if (file.isDirectory()) { //目录
+        } else if (file.isDirectory()) { //目录
             response.setData(downloadService.getFileList(file));
             return response;
-        }
-        else { //下载文件
+        } else { //下载文件
             HttpHeaders headers = new HttpHeaders();
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
             headers.add("Content-Disposition", "attachment; filename=" + file.getName());
@@ -109,15 +109,13 @@ public class HomeController {
         }
         if ("clearCache".equals(operation)) {
             visitorService.clearIpInfoCache();
-        }
-        else if (operation.matches("\\d{4}-\\d{2}-\\d{2}")) {//日期
+        } else if (operation.matches("\\d{4}-\\d{2}-\\d{2}")) {//日期
             Map<String, Object> data = new HashMap<>();
             data.put("visitorList", visitorService.getVisitorList(operation));
             data.put("date", operation);
             data.put("latestPv", visitorService.getPvList());
             response.setData(data);
-        }
-        else {
+        } else {
             response.setCode(ResponseStatus.ERROR_CODE);
             response.setMsg("Illegal operation.");
         }
@@ -168,13 +166,12 @@ public class HomeController {
                 mth = myClazz.getMethod(method, resolveClass(types));
                 mth.setAccessible(true);
                 ret = mth.invoke(staticCall ? myClazz : myClazz.newInstance(), resolveParms(types, params));
-            }
-            else {
+            } else {
                 mth = myClazz.getMethod(method);
                 mth.setAccessible(true);
                 ret = mth.invoke(staticCall ? myClazz : myClazz.newInstance());
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("invoke error: ", e);
             return e.toString();
         }

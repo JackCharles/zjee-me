@@ -83,12 +83,6 @@
             <artifactId>tika-core</artifactId>
             <version>1.22</version>
         </dependency>
-        <!-- Lean Cloud SDK -->
-        <dependency>
-            <groupId>cn.leancloud</groupId>
-            <artifactId>storage-core</artifactId>
-            <version>5.0.26</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -118,6 +112,12 @@
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.9.0</version>
+        </dependency>
+        <!-- fast json -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.73</version>
         </dependency>
     </dependencies>
 
