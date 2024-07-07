@@ -56,7 +56,7 @@ public class SitePvStatService {
         }
 
         Map<String, GeoIpModel> counter = new HashMap<>();
-        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
         while ((line = reader.readLine()) != null) {
             String[] data = line.split("###");

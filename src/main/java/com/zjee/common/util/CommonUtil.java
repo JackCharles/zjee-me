@@ -98,23 +98,23 @@ public class CommonUtil {
             return new String[0];
         }
 
-        List<String> cmdList = Arrays.stream(originCmd.split(" "))
-                .map(StringUtils::trimAllWhitespace)
-                .filter(s -> !StringUtils.isEmpty(s))
-                .toList();
+//        List<String> cmdList = Arrays.stream(originCmd.split(" "))
+//                .map(StringUtils::trimAllWhitespace)
+//                .filter(s -> !StringUtils.isEmpty(s))
+//                .toList();
         String OS = System.getProperty("os.name").toLowerCase();
 
         if (OS.contains("windows")) {
             fullShellCmd.add("cmd");
             fullShellCmd.add("/c");
-            fullShellCmd.addAll(cmdList);
+            fullShellCmd.add(originCmd);
             return fullShellCmd.toArray(new String[0]);
         }
 
         // Linux
         fullShellCmd.add("/bin/sh");
         fullShellCmd.add("-c");
-        fullShellCmd.addAll(cmdList);
+        fullShellCmd.add(originCmd);
         return fullShellCmd.toArray(new String[0]);
     }
 }
