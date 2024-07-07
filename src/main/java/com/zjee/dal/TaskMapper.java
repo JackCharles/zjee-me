@@ -1,6 +1,6 @@
 package com.zjee.dal;
 
-import com.zjee.pojo.TaskInfo;
+import com.zjee.common.model.TaskInfo;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,9 +21,9 @@ public interface TaskMapper {
     @Insert("insert into cmd_task (task_id, cmd, time_out, start_time, end_time, exit_status, desc) " +
         "values (#{taskId}, #{cmd}, #{timeOut}, " +
         "#{startTime}, #{endTime}, #{exitStatus}, #{desc})")
-    int addTask(TaskInfo taskInfo);
+    void addTask(TaskInfo taskInfo);
 
     @Update("update cmd_task set start_time=#{startTime}, end_time=#{endTime}, " +
         "exit_status=#{exitStatus} where task_id=#{taskId}")
-    int updateTask(TaskInfo taskInfo);
+    void updateTask(TaskInfo taskInfo);
 }

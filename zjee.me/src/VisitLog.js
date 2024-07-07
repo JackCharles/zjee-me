@@ -75,7 +75,8 @@ class VisitLog extends React.Component {
       if(res.data.code === 302) {
         this.setState({needLogin: true})
       }else if(res.data.code === 200) {
-        this.setState({visitLog: res.data.data, pvList: this.getOption(res.data.data.latestPv.dateList, res.data.data.latestPv.pvList)})
+        this.setState({visitLog: res.data.data,
+          pvList: this.getOption(res.data.data.latestPv.dateList, res.data.data.latestPv.pvList)})
       }else{
         message.error(res.data.msg)
       }
@@ -108,7 +109,7 @@ class VisitLog extends React.Component {
         left: "center",
       },
       grid:{
-        left:'20px',
+        left:'30px',
         right:'50px',
         bottom:'0',
         containLabel: true

@@ -1,7 +1,7 @@
 package com.zjee.task;
 
 import com.zjee.dal.TaskMapper;
-import com.zjee.pojo.TaskInfo;
+import com.zjee.common.model.TaskInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

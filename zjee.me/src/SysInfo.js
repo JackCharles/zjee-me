@@ -249,7 +249,7 @@ class SysInfo extends React.Component {
             diskData: res.data.data.disk.detail,
             diskUsage: res.data.data.disk.usage,
             bandUsage: res.data.data.bandwidth.usedPercent,
-            bandwidth: this.getOption(res.data.data.bandwidth.dt, res.data.data.bandwidth.dataUsage)
+            bandwidth: this.getOption(res.data.data.bandwidth.dt, res.data.data.bandwidth.inBound, res.data.data.bandwidth.outBound)
           })
         }
         else {
@@ -271,7 +271,7 @@ class SysInfo extends React.Component {
       this.getSysInfoData()
     }
 
-    getOption(date, dataUsage) {
+    getOption(date, inBound, outBound) {
       return {
         title: {
           show: true,
@@ -279,7 +279,7 @@ class SysInfo extends React.Component {
           left: "center"
         },
         grid:{
-          left:'20px',
+          left:'50px',
           right:'50px',
           bottom:'0',
           containLabel: true
@@ -311,8 +311,14 @@ class SysInfo extends React.Component {
         },
         series: [
           {
-            name: 'Data Usage',
-            data: dataUsage,
+            name: 'In Bound',
+            data: inBound,
+            type: 'bar',
+            barMaxWidth: '10px'
+          },
+          {
+            name: 'Out Bound',
+            data: outBound,
             type: 'bar',
             barMaxWidth: '10px'
           },

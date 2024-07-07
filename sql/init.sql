@@ -9,10 +9,13 @@ CREATE TABLE IF NOT EXISTS cmd_task(
     desc        varchar(255)  comment 'cmd description'
 ) comment 'cmd task info';
 
+create table if not exists users(
+    username varchar(50) not null primary key,
+    password varchar(500) not null,
+    enabled boolean not null
+) comment 'users';
 
-CREATE TABLE IF NOT EXISTS bandwidth_stat(
-    dt          timestamp primary key comment 'date time',
-    usage_today bigint comment 'today usage',
-    usage_total bigint comment 'total usage',
-    capacity    bigint comment 'bandwidth total'
-) comment 'bandwidth usage statistic';
+create table if not exists authorities (
+    username varchar(50) not null,
+    authority varchar(50) not null
+)comment 'authorities';

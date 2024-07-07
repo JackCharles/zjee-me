@@ -1,9 +1,9 @@
 package com.zjee.task;
 
-import com.zjee.pojo.TaskInfo;
+import com.zjee.common.model.TaskInfo;
+import com.zjee.common.util.CommonUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -12,11 +12,9 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Data
 @Slf4j
@@ -50,19 +48,17 @@ public class CmdRunner {
     public void run(int timeoutSec) throws IOException {
         taskInfo.setStartTime(LocalDateTime.now().format(DEFAULT_FORMATTER));
         taskInfo.setExitStatus(RUNNING_STATUS);
-        List<String> cmdList = Arrays.stream(taskInfo.getCmd().split(" "))
-            .map(StringUtils::trimAllWhitespace)
-            .filter(s -> !StringUtils.isEmpty(s))
-            .collect(Collectors.toList());
-        if(CollectionUtils.isEmpty(cmdList)) {
+
+        String[] cmdArr = CommonUtil.buildShellCmd(taskInfo.getCmd());
+        if (cmdArr.length == 0) {
             throw new RuntimeException("Invalid command: " + taskInfo.getCmd());
         }
-        log.info("Process starting: {}", String.join(" ", cmdList));
-        this.process = new ProcessBuilder(cmdList)
-            .redirectErrorStream(true)
-            .start();
-        log.info("Process started: {}", String.join(" ", cmdList));
-        outputReader = new BufferedReader(new InputStreamReader(this.process.getInputStream(), getCharset()));
+        log.info("Process starting: {}", Arrays.toString(cmdArr));
+        this.process = new ProcessBuilder(cmdArr)
+                .redirectErrorStream(true)
+                .start();
+        log.info("Process started: {}", Arrays.toString(cmdArr));
+        outputReader = new BufferedReader(new InputStreamReader(this.process.getInputStream(), CommonUtil.getCharset()));
         waitForFinish(timeoutSec);
     }
 
@@ -71,8 +67,7 @@ public class CmdRunner {
             try {
                 if (timeoutSec > 0) {
                     process.waitFor(timeoutSec, TimeUnit.SECONDS);
-                }
-                else {
+                } else {
                     process.waitFor();
                 }
                 taskInfo.setExitStatus(process.exitValue());
@@ -118,8 +113,4 @@ public class CmdRunner {
         return null != info && !StringUtils.isEmpty(info.getCmd());
     }
 
-    private String getCharset() {
-        String OS = System.getProperty("os.name").toLowerCase();
-        return OS.contains("windows") ? "GBK" : "UTF-8";
-    }
 }

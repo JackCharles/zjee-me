@@ -1,6 +1,6 @@
 package com.zjee.service;
 
-import com.zjee.service.util.CommonUtil;
+import com.zjee.common.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Component;

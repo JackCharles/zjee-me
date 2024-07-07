@@ -1,62 +1,59 @@
 package com.zjee.service;
 
+import com.zjee.common.util.CommonUtil;
+import com.zjee.common.util.HttpUtil;
+import com.zjee.common.util.JsonUtil;
 import com.zjee.constant.Constant;
-import com.zjee.constant.ResponseStatus;
-import com.zjee.service.util.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Date: 2019-06-21 13:37
- * Author: zhongjie03
- * E-mail: zhongjie03@meituan.com
- * Description:
+ * Author: zhongjie
+ * Description: web图片获取接口
  */
 
 @Component
 @Slf4j
 public class WebPicService {
 
-    @Cacheable(cacheNames = "imgUrls",  key = "#keyWord+#date", unless = "#result == null")
-    public List<String> batchGetPhotoUrl(String keyWord, String date) throws Exception {
+
+    public String getRandomPicUrl(String keyWord, LocalDate date) {
+        List<String> urlList = getWebPicture(keyWord, date);
+        if(CollectionUtils.isEmpty(urlList)) {
+            return null;
+        }
+        Random random = new Random(System.currentTimeMillis());
+        int randomIndex = random.nextInt(urlList.size());
+        return urlList.get(randomIndex);
+    }
+
+    @Cacheable(cacheNames = "imgUrls",  key = "#keyWord+#date", unless = "#result.isEmpty()")
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public List<String> getWebPicture(String keyWord, LocalDate date) {
         log.info("batchGetPhotoUrl未命中缓存：keyword = {}, date = {}", keyWord, date);
-        HttpClient client = HttpClients.createDefault();
-        URIBuilder uriBuilder = new URIBuilder(Constant.IMG_URL)
-                .addParameter("key", Constant.PIX_KEY)
-                .addParameter("q", keyWord)
-                .addParameter("lang", CommonUtil.getLanguage(keyWord))
-                .addParameter("image_type", "photo")
-                .addParameter("orientation", "horizontal")
-                .addParameter("min_width", "3839")
-                .addParameter("min_height", "2159")
-                .addParameter("per_page", "200");
-        HttpGet get = new HttpGet(uriBuilder.build());
-        HttpResponse response = client.execute(get);
-        if(response == null || response.getStatusLine().getStatusCode() != ResponseStatus.SUCCESS_CODE){
-            log.error("pixabay API请求失败, url: {}", uriBuilder.build().toString());
-            throw new Exception("pixabay API请求失败");
+        Map<String, String> param = new HashMap<>();
+        param.put("key", Constant.PIX_KEY);
+        param.put("q", keyWord);
+        param.put("lang", CommonUtil.getLanguage(keyWord));
+        param.put("image_type", "photo");
+        param.put("orientation", "horizontal");
+        param.put("min_width", "3839");
+        param.put("min_height", "2159");
+        param.put("per_page", "200");
+
+        String resJson = HttpUtil.get(Constant.IMG_URL, param, null);
+        Map map = JsonUtil.fromJson(resJson, Map.class);
+        if(null == map || !map.containsKey("hits")) {
+            return Collections.emptyList();
         }
-        String res = CommonUtil.readStreamToString(response.getEntity().getContent());
-        List<String> urls = new ArrayList<>(200);
-        if(!StringUtils.isEmpty(res)){
-            JSONObject jsonObject = new JSONObject(res);
-            JSONArray jsonArray = jsonObject.getJSONArray("hits");
-            for(int i=0; i< jsonArray.length(); ++i){
-                urls.add(jsonArray.optJSONObject(i).optString("largeImageURL", "error"));
-            }
-        }
-        return urls;
+        List<Map> hits = (List<Map>) map.get("hits");
+        return hits.stream().map(h -> (String)h.get("largeImageURL")).collect(Collectors.toList());
     }
 }

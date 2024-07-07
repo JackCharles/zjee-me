@@ -1,17 +1,16 @@
 package com.zjee.controller;
 
-import com.alibaba.fastjson.JSON;
+import com.zjee.common.util.JsonUtil;
 import com.zjee.constant.Constant;
 import com.zjee.constant.ResponseStatus;
 import com.zjee.controller.vo.CommonResponse;
 import com.zjee.service.DownloadService;
 import com.zjee.service.MottoService;
+import com.zjee.service.SitePvStatService;
 import com.zjee.service.SystemInfoService;
-import com.zjee.service.VisitorService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -32,7 +30,10 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class HomeController {
 
-    private static Map<String, ClassLoader> classLoaderMap = new HashMap<>();
+    private static final Map<String, ClassLoader> classLoaderMap = new HashMap<>();
 
     private int visitCount = 0;
     @Autowired
@@ -48,9 +49,10 @@ public class HomeController {
     @Autowired
     private DownloadService downloadService;
     @Autowired
-    private VisitorService visitorService;
+    private SitePvStatService visitorService;
     @Autowired
     private MottoService mottoService;
+
 
     @GetMapping("/")
     public String home(Model model) {
@@ -73,7 +75,7 @@ public class HomeController {
 
     @GetMapping("/api/download/**")
     @ResponseBody
-    public Object download(HttpServletRequest httpRequest) {
+    public Object download(HttpServletRequest httpRequest) throws Exception{
         CommonResponse response = new CommonResponse(ResponseStatus.SUCCESS_CODE, ResponseStatus.SUCCESS_MSG);
         File file = downloadService.getFileFromUri(httpRequest.getRequestURI(), "/api/");
         if (file == null || !file.exists()) {
@@ -84,9 +86,10 @@ public class HomeController {
             response.setData(downloadService.getFileList(file));
             return response;
         } else { //下载文件
+            String fileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8);
             HttpHeaders headers = new HttpHeaders();
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-            headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+            headers.add("Content-Disposition", "attachment; filename=" + fileName);
             headers.add("Pragma", "no-cache");
             headers.add("Expires", "0");
             return ResponseEntity
@@ -106,14 +109,12 @@ public class HomeController {
         if (StringUtils.isEmpty(operation)) {
             response.setCode(ResponseStatus.ERROR_CODE);
             response.setMsg("path variable can not be empty.");
-        }
-        if ("clearCache".equals(operation)) {
-            visitorService.clearIpInfoCache();
         } else if (operation.matches("\\d{4}-\\d{2}-\\d{2}")) {//日期
             Map<String, Object> data = new HashMap<>();
-            data.put("visitorList", visitorService.getVisitorList(operation));
+            LocalDate date = LocalDate.parse(operation);
+            data.put("visitorList", visitorService.getVisitorList(date));
             data.put("date", operation);
-            data.put("latestPv", visitorService.getPvList());
+            data.put("latestPv", visitorService.getPvList(date));
             response.setData(data);
         } else {
             response.setCode(ResponseStatus.ERROR_CODE);
@@ -162,7 +163,7 @@ public class HomeController {
                 Arrays.stream(args.split("&")).map(String::trim).collect(Collectors.toList());
 
         try {
-            if (types.size() > 0) {
+            if (!types.isEmpty()) {
                 mth = myClazz.getMethod(method, resolveClass(types));
                 mth.setAccessible(true);
                 ret = mth.invoke(staticCall ? myClazz : myClazz.newInstance(), resolveParms(types, params));
@@ -298,19 +299,12 @@ public class HomeController {
                         parms.add(Byte.parseByte(args.get(i)));
                         break;
                     default:
-                        parms.add(JSON.parseObject(args.get(i), getClassFromName(clazz.get(i))));
+                        parms.add(JsonUtil.fromJson(args.get(i), getClassFromName(clazz.get(i))));
                 }
             } catch (Exception e) {
                 log.error("parse value error: ", e);
             }
         }
         return parms.toArray();
-    }
-
-    @RequestMapping("/api/bandwidth/cut")
-    @ResponseBody
-    public String bandwidthDailyCut() {
-        systemInfoService.statisticBandwidthUsage();
-        return "OK";
     }
 }

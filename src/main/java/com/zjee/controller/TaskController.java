@@ -1,7 +1,8 @@
 package com.zjee.controller;
 
-import com.zjee.pojo.TaskInfo;
+import com.zjee.common.model.TaskInfo;
 import com.zjee.service.TaskService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class TaskController {
     private TaskService taskService;
 
     @RequestMapping("submit")
-    public ResponseEntity submitTask(@RequestBody TaskInfo taskInfo) {
+    public ResponseEntity submitTask(HttpServletResponse response, @RequestBody TaskInfo taskInfo) throws Exception{
         if (taskInfo == null) {
             return ResponseEntity.badRequest().body("Empty task info");
         }

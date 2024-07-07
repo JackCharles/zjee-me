@@ -19,7 +19,7 @@ class NavBar extends React.Component {
                 mode="horizontal" id = "nav-bar" theme="dark">
             
                 <Menu.Item key="blog" className = "nav-item">
-                    <a href = "https://jackcharles.github.io" target = "_blank" rel='noreferrer noopener'>
+                    <a href = "https://blog.zjee.me" target = "_blank" rel='noreferrer noopener'>
                         <ReadOutlined />
                         Blog
                     </a>

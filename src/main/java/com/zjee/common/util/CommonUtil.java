@@ -1,4 +1,4 @@
-package com.zjee.service.util;
+package com.zjee.common.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -7,12 +7,15 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Date: 2019-06-21 13:53
- * Author: zhongjie03
- * E-mail: zhongjie03@meituan.com
- * Description:
+ * Author: zhongjie
+ * Description: common util
  */
 
 @Slf4j
@@ -82,5 +85,36 @@ public class CommonUtil {
     public static double round(double d, int digital) {
         BigDecimal bg = new BigDecimal(d);
         return bg.setScale(digital, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
+
+    public static String getCharset() {
+        String OS = System.getProperty("os.name").toLowerCase();
+        return OS.contains("windows") ? "GBK" : "UTF-8";
+    }
+
+    public static String[] buildShellCmd(String originCmd) {
+        List<String> fullShellCmd = new ArrayList<>();
+        if(originCmd == null || originCmd.isBlank()) {
+            return new String[0];
+        }
+
+        List<String> cmdList = Arrays.stream(originCmd.split(" "))
+                .map(StringUtils::trimAllWhitespace)
+                .filter(s -> !StringUtils.isEmpty(s))
+                .toList();
+        String OS = System.getProperty("os.name").toLowerCase();
+
+        if (OS.contains("windows")) {
+            fullShellCmd.add("cmd");
+            fullShellCmd.add("/c");
+            fullShellCmd.addAll(cmdList);
+            return fullShellCmd.toArray(new String[0]);
+        }
+
+        // Linux
+        fullShellCmd.add("/bin/sh");
+        fullShellCmd.add("-c");
+        fullShellCmd.addAll(cmdList);
+        return fullShellCmd.toArray(new String[0]);
     }
 }

@@ -20,7 +20,7 @@ public class MottoController {
     @Autowired
     private MottoService mottoService;
 
-    private Map<String, String> typeMap;
+    private final Map<String, String> typeMap;
 
     public MottoController() {
         typeMap = new HashMap<>();
@@ -36,7 +36,7 @@ public class MottoController {
     @RequestMapping("motto")
     public CommonResponse getMotto(@RequestParam(required = false) String type) {
         CommonResponse response = new CommonResponse();
-        if (null == type || typeMap.keySet().contains(type)) {
+        if (null == type || typeMap.containsKey(type)) {
             response.setCode(ResponseStatus.SUCCESS_CODE);
             response.setMsg("OK");
             response.setData(mottoService.getRandomMotto(type));

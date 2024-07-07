@@ -1,15 +1,13 @@
 package com.zjee.service;
 
 import com.zjee.dal.TaskMapper;
-import com.zjee.pojo.TaskInfo;
+import com.zjee.common.model.TaskInfo;
 import com.zjee.task.TaskManager;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;

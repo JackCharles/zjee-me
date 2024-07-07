@@ -1,4 +1,4 @@
-package com.zjee.pojo;
+package com.zjee.common.model;
 
 import lombok.Data;
 

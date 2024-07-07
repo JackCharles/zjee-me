@@ -1,10 +1,14 @@
-package com.zjee.pojo;
+package com.zjee.common.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TaskInfo {
 
     private String taskId;
