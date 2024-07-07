@@ -108,4 +108,5 @@ sigar*
 data
 zjee.me/dist
 zjee.me/node_modules
-/PaasKeyValueCache/
+db
+download
