@@ -38,8 +38,8 @@ public class SystemInfoService {
         trafficList.sort(Comparator.comparing(TrafficStatModel::getDate, String::compareTo));
         TrafficStatModel sample = trafficList.getFirst();
         bandInfo.put("totalBand", CommonUtil.formatByteUnit(Constant.TRAFFIC_CAPACITY));
-        bandInfo.put("currUsage", CommonUtil.formatByteUnit(sample.getOutBound()));
-        bandInfo.put("usedPercent", CommonUtil.round(sample.getOutBound() * 100.0d / Constant.TRAFFIC_CAPACITY, 2));
+        bandInfo.put("currUsage", CommonUtil.formatByteUnit(sample.getTotalOutBound()));
+        bandInfo.put("usedPercent", CommonUtil.round(sample.getTotalOutBound() * 100.0d / Constant.TRAFFIC_CAPACITY, 2));
         List<String> dts = new ArrayList<>();
         List<Double> outBoundList = new ArrayList<>();
         List<Double> inBoundList = new ArrayList<>();

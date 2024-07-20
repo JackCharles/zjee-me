@@ -98,10 +98,7 @@ public class CommonUtil {
             return new String[0];
         }
 
-//        List<String> cmdList = Arrays.stream(originCmd.split(" "))
-//                .map(StringUtils::trimAllWhitespace)
-//                .filter(s -> !StringUtils.isEmpty(s))
-//                .toList();
+
         String OS = System.getProperty("os.name").toLowerCase();
 
         if (OS.contains("windows")) {
